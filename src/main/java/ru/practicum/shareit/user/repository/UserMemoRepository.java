@@ -10,7 +10,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 @Repository
@@ -38,7 +37,10 @@ public class UserMemoRepository implements UserRepository {
 
     @Override
     public User create(User user) {
-        findMatch(user).ifPresent(user1 -> {throw new CreateDuplicateEntityException(User.class, user1.getId());});;
+        findMatch(user).ifPresent(user1 -> {
+            throw new CreateDuplicateEntityException(User.class, user1.getId());
+        });
+        ;
         user.setId(lastId++);
         storage.put(user.getId(), user);
         return user;
@@ -57,7 +59,7 @@ public class UserMemoRepository implements UserRepository {
             }
         });
 
-        User oldUser = findById(userId).orElseThrow(() -> new EntityNotFoundException(User.class, userId.toString()));
+        User oldUser = findById(userId).orElseThrow(() -> new EntityNotFoundException(User.class, String.format("ID: %s", userId.toString())));
         oldUser.setName(user.getName() != null ? user.getName() : oldUser.getName());
         oldUser.setEmail(user.getEmail() != null ? user.getEmail() : oldUser.getEmail());
         return storage.put(oldUser.getId(), oldUser);

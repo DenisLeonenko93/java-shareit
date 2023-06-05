@@ -1,12 +1,61 @@
 package ru.practicum.shareit.item;
 
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.service.ItemService;
+
+import javax.validation.Valid;
+import java.util.List;
 
 /**
  * TODO Sprint add-controllers.
  */
 @RestController
 @RequestMapping("/items")
+@RequiredArgsConstructor
 public class ItemController {
+
+    private final ItemService itemService;
+
+    @PostMapping
+    public ResponseEntity<ItemDto> create(@RequestHeader("X-Sharer-User-Id") Long userId,
+                                          @RequestBody @Valid Item item) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(itemService.create(userId, item));
+    }
+
+    @PatchMapping("/{itemId}")
+    public ResponseEntity<ItemDto> update(@RequestHeader("X-Sharer-User-Id") Long userId,
+                                          @PathVariable("itemId") Long itemId,
+                                          @RequestBody ItemDto itemDto) {
+        return ResponseEntity.ok(itemService.update(userId, itemId, itemDto));
+    }
+
+    @GetMapping("/{itemId}")
+    public ResponseEntity<ItemDto> getByItemId(@RequestHeader("X-Sharer-User-Id") Long userId,
+                                               @PathVariable("itemId") Long itemId) {
+        return ResponseEntity.ok(itemService.getByItemId(userId, itemId));
+    }
+
+    @GetMapping
+    public ResponseEntity<List<ItemDto>> getAllItemsByUserId(@RequestHeader("X-Sharer-User-Id") Long userId) {
+        return ResponseEntity.ok(itemService.getAllItemsDyUserId(userId));
+    }
+
+    @DeleteMapping("/{itemId}")
+    public ResponseEntity<Void> delete(@RequestHeader("X-Sharer-User-Id") Long userId,
+                                       @PathVariable("itemId") Long itemId) {
+        itemService.delete(userId, itemId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<ItemDto>> search(@RequestHeader("X-Sharer-User-Id") Long userId,
+                                          @RequestParam("text") String text) {
+        return ResponseEntity.ok(itemService.search(userId, text));
+    }
 }
