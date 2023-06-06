@@ -8,9 +8,14 @@ import java.util.Optional;
 
 public interface ItemRepository {
     Item create(Item item);
+
     List<Item> getAllByUserId(Long userId);
+
     Optional<Item> findById(Long itemId);
+
     void delete(Long itemId);
+
     Item update(Long itemId, ItemDto itemDto);
+
     List<Item> search(String text);
 }
