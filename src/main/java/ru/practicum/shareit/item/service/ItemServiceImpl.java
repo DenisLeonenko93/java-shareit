@@ -68,7 +68,7 @@ public class ItemServiceImpl implements ItemService {
             return Collections.emptyList();
         }
         List<Item> items = itemRepository.search(text);
-        if (items.isEmpty()){
+        if (items.isEmpty()) {
             throw new EntityNotFoundException(Item.class, String.format("text: %s", text));
         }
         return items.stream()

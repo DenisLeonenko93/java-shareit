@@ -12,7 +12,10 @@ import java.time.temporal.ChronoUnit;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface LogExecution {
     LogLevel value() default LogLevel.INFO;
+
     ChronoUnit chronoUnit() default ChronoUnit.MILLIS;
+
     boolean withArgs() default false;
+
     boolean withDuration() default true;
 }

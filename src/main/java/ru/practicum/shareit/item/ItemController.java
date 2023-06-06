@@ -62,7 +62,7 @@ public class ItemController {
     @GetMapping("/search")
     @LogExecution
     public ResponseEntity<List<ItemDto>> search(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                          @RequestParam("text") String text) {
+                                                @RequestParam("text") String text) {
         return ResponseEntity.ok(itemService.search(userId, text));
     }
 }

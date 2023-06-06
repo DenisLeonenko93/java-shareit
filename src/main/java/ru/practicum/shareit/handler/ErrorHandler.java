@@ -1,7 +1,6 @@
 package ru.practicum.shareit.handler;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.logging.LogLevel;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -10,7 +9,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.practicum.shareit.exception.CreateDuplicateEntityException;
 import ru.practicum.shareit.exception.DataAccessException;
 import ru.practicum.shareit.exception.EntityNotFoundException;
-import ru.practicum.shareit.util.LogExecution;
 
 import static org.springframework.http.HttpStatus.*;
 

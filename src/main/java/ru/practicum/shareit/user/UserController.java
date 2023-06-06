@@ -1,7 +1,6 @@
 package ru.practicum.shareit.user;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.java.Log;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -52,7 +51,7 @@ public class UserController {
     @PatchMapping("/{userId}")
     @LogExecution(withArgs = true)
     public ResponseEntity<UserDto> update(@PathVariable("userId") Long userId,
-                       @RequestBody User user) {
+                                          @RequestBody User user) {
         return ResponseEntity.ok(userService.update(userId, user));
     }
 
