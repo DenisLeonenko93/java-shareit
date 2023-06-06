@@ -17,11 +17,11 @@ import javax.validation.constraints.NotNull;
 @Builder
 public class Item {
     private Long id;
-    @NotBlank
+    @NotBlank(message = "Поле name должно быть заполнено.")
     private String name;
-    @NotBlank
+    @NotBlank(message = "Поле description должно быть заполнено.")
     private String description;
-    @NotNull
+    @NotNull(message = "Поле available должно быть заполнено.")
     private Boolean available;
     private Long ownerId;
     private ItemRequest request;

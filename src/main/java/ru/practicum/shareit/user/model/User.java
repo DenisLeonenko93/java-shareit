@@ -15,6 +15,7 @@ import javax.validation.constraints.NotBlank;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class User {
     private Long id;
+
     @NotBlank(message = "Поле name должно быть заполнено.")
     private String name;
 

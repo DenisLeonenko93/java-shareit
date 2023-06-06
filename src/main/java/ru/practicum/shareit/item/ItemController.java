@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemService;
+import ru.practicum.shareit.util.LogExecution;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -22,6 +23,7 @@ public class ItemController {
     private final ItemService itemService;
 
     @PostMapping
+    @LogExecution
     public ResponseEntity<ItemDto> create(@RequestHeader("X-Sharer-User-Id") Long userId,
                                           @RequestBody @Valid Item item) {
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -29,6 +31,7 @@ public class ItemController {
     }
 
     @PatchMapping("/{itemId}")
+    @LogExecution(withArgs = true)
     public ResponseEntity<ItemDto> update(@RequestHeader("X-Sharer-User-Id") Long userId,
                                           @PathVariable("itemId") Long itemId,
                                           @RequestBody ItemDto itemDto) {
@@ -36,17 +39,20 @@ public class ItemController {
     }
 
     @GetMapping("/{itemId}")
+    @LogExecution(withArgs = true)
     public ResponseEntity<ItemDto> getByItemId(@RequestHeader("X-Sharer-User-Id") Long userId,
                                                @PathVariable("itemId") Long itemId) {
         return ResponseEntity.ok(itemService.getByItemId(userId, itemId));
     }
 
     @GetMapping
+    @LogExecution
     public ResponseEntity<List<ItemDto>> getAllItemsByUserId(@RequestHeader("X-Sharer-User-Id") Long userId) {
         return ResponseEntity.ok(itemService.getAllItemsDyUserId(userId));
     }
 
     @DeleteMapping("/{itemId}")
+    @LogExecution(withArgs = true)
     public ResponseEntity<Void> delete(@RequestHeader("X-Sharer-User-Id") Long userId,
                                        @PathVariable("itemId") Long itemId) {
         itemService.delete(userId, itemId);
@@ -54,6 +60,7 @@ public class ItemController {
     }
 
     @GetMapping("/search")
+    @LogExecution
     public ResponseEntity<List<ItemDto>> search(@RequestHeader("X-Sharer-User-Id") Long userId,
                                           @RequestParam("text") String text) {
         return ResponseEntity.ok(itemService.search(userId, text));
