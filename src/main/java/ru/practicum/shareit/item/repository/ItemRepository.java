@@ -12,6 +12,5 @@ public interface ItemRepository {
     Optional<Item> findById(Long itemId);
     void delete(Long itemId);
     Item update(Long itemId, ItemDto itemDto);
-
     List<Item> search(String text);
 }
