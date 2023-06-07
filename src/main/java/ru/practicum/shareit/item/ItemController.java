@@ -5,7 +5,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.util.LogExecution;
 
@@ -25,9 +24,9 @@ public class ItemController {
     @PostMapping
     @LogExecution
     public ResponseEntity<ItemDto> create(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                          @RequestBody @Valid Item item) {
+                                          @RequestBody @Valid ItemDto itemDto) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(itemService.create(userId, item));
+                .body(itemService.create(userId, itemDto));
     }
 
     @PatchMapping("/{itemId}")

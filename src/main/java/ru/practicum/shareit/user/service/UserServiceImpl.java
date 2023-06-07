@@ -33,7 +33,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDto create(User user) {
+    public UserDto create(UserDto userDto) {
+        User user = UserMapper.fromUserDto(userDto);
         return UserMapper.toUserDto(userRepository.create(user));
     }
 
@@ -43,8 +44,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDto update(Long userId, User user) {
+    public UserDto update(Long userId, UserDto userDto) {
         findById(userId);
+        User user = UserMapper.fromUserDto(userDto);
         return UserMapper.toUserDto(userRepository.update(userId, user));
     }
 }

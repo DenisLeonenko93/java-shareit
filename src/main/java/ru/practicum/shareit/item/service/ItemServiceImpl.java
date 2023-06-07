@@ -22,10 +22,11 @@ public class ItemServiceImpl implements ItemService {
     private final UserService userService;
 
     @Override
-    public ItemDto create(Long userId, Item item) {
+    public ItemDto create(Long userId, ItemDto itemDto) {
         userService.findById(userId);
+        Item item = ItemMapper.fromDto(itemDto);
         item.setOwnerId(userId);
-        return ItemMapper.toItemDto(itemRepository.create(item));
+        return ItemMapper.toDto(itemRepository.create(item));
     }
 
     @Override
@@ -33,7 +34,7 @@ public class ItemServiceImpl implements ItemService {
         userService.findById(userId);
         Item item = isExist(itemId);
         checkItemOwner(userId, item);
-        return ItemMapper.toItemDto(itemRepository.update(itemId, itemDto));
+        return ItemMapper.toDto(itemRepository.update(itemId, itemDto));
 
     }
 
@@ -41,7 +42,7 @@ public class ItemServiceImpl implements ItemService {
     public ItemDto getByItemId(Long userId, Long itemId) {
         userService.findById(userId);
         Item item = isExist(itemId);
-        return ItemMapper.toItemDto(item);
+        return ItemMapper.toDto(item);
     }
 
     @Override
@@ -49,7 +50,7 @@ public class ItemServiceImpl implements ItemService {
         userService.findById(userId);
         return itemRepository.getAllByUserId(userId)
                 .stream()
-                .map(ItemMapper::toItemDto)
+                .map(ItemMapper::toDto)
                 .collect(Collectors.toList());
     }
 
@@ -72,7 +73,7 @@ public class ItemServiceImpl implements ItemService {
             throw new EntityNotFoundException(Item.class, String.format("text: %s", text));
         }
         return items.stream()
-                .map(ItemMapper::toItemDto)
+                .map(ItemMapper::toDto)
                 .collect(Collectors.toList());
     }
 

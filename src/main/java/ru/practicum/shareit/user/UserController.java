@@ -5,7 +5,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.user.dto.UserDto;
-import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 import ru.practicum.shareit.util.LogExecution;
 
@@ -36,9 +35,9 @@ public class UserController {
 
     @PostMapping
     @LogExecution
-    public ResponseEntity<UserDto> create(@RequestBody @Valid User user) {
+    public ResponseEntity<UserDto> create(@RequestBody @Valid UserDto userDto) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(userService.create(user));
+                .body(userService.create(userDto));
     }
 
     @DeleteMapping("/{userId}")
@@ -51,8 +50,8 @@ public class UserController {
     @PatchMapping("/{userId}")
     @LogExecution(withArgs = true)
     public ResponseEntity<UserDto> update(@PathVariable("userId") Long userId,
-                                          @RequestBody User user) {
-        return ResponseEntity.ok(userService.update(userId, user));
+                                          @RequestBody UserDto userDto) {
+        return ResponseEntity.ok(userService.update(userId, userDto));
     }
 
 }
