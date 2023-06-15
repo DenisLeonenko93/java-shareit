@@ -57,8 +57,8 @@ public class ErrorHandler {
     }
 
     private static class ErrorInfo {
-        String error;
         String message;
+        String error;
 
         public ErrorInfo(Class<?> entityClass, String message) {
             this.error = entityClass.getSimpleName();
