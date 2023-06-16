@@ -2,6 +2,7 @@ package ru.practicum.shareit.user.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.exception.CreateDuplicateEntityException;
 import ru.practicum.shareit.exception.EntityNotFoundException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.mapper.UserMapper;
@@ -19,7 +20,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<UserDto> getAll() {
-        return userRepository.getAll()
+        return userRepository.findAll()
                 .stream()
                 .map(UserMapper::toUserDto)
                 .collect(Collectors.toList());
@@ -34,19 +35,25 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto create(UserDto userDto) {
+        List<User> users = userRepository.findByEmail(userDto.getEmail());
+        if (!users.isEmpty()){
+            throw new CreateDuplicateEntityException(User.class,users.get(0).getId());
+        };
         User user = UserMapper.fromUserDto(userDto);
-        return UserMapper.toUserDto(userRepository.create(user));
+        return UserMapper.toUserDto(userRepository.save(user));
     }
+
 
     @Override
     public void delete(Long userId) {
-        userRepository.delete(userId);
+        userRepository.deleteById(userId);
     }
 
     @Override
     public UserDto update(Long userId, UserDto userDto) {
         findById(userId);
+        userDto.setId(userId);
         User user = UserMapper.fromUserDto(userDto);
-        return UserMapper.toUserDto(userRepository.update(userId, user));
+        return UserMapper.toUserDto(userRepository.saveAndFlush(user));
     }
 }

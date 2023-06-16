@@ -1,6 +1,7 @@
 package ru.practicum.shareit.handler;
 
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -55,6 +56,16 @@ public class ErrorHandler {
         return new ErrorInfo(MissingRequestHeaderException.class,
                 e.getMessage());
     }
+
+    //TODO разобраться с описанием ошибки
+    @ExceptionHandler(ConstraintViolationException.class)
+    @ResponseStatus(CONFLICT)
+    public ErrorInfo handleHibernateViolationException(ConstraintViolationException e) {
+        log.warn(e.getLocalizedMessage());
+        return new ErrorInfo(ConstraintViolationException.class,
+                e.getMessage());
+    }
+
 
     private static class ErrorInfo {
         String message;
