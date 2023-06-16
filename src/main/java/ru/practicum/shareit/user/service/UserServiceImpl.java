@@ -29,16 +29,16 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto findById(Long userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException(User.class, String.format("ID: %s", userId.toString())));
+                .orElseThrow(() -> new EntityNotFoundException(User.class, String.format("ID: %s", userId)));
         return UserMapper.toUserDto(user);
     }
 
     @Override
     public UserDto create(UserDto userDto) {
         List<User> users = userRepository.findByEmail(userDto.getEmail());
-        if (!users.isEmpty()){
-            throw new CreateDuplicateEntityException(User.class,users.get(0).getId());
-        };
+        if (!users.isEmpty()) {
+            throw new CreateDuplicateEntityException(User.class, users.get(0).getId());
+        }
         User user = UserMapper.fromUserDto(userDto);
         return UserMapper.toUserDto(userRepository.save(user));
     }

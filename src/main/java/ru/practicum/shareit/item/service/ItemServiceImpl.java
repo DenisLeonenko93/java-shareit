@@ -34,14 +34,12 @@ public class ItemServiceImpl implements ItemService {
     //TODO исправить метод
     @Override
     public ItemDto update(Long userId, Long itemId, ItemDto itemDto) {
-//        userService.findById(userId);
-//        Item item = isExist(itemId);
-//        checkItemOwner(userId, item);
-//        return ItemMapper.toDto(itemRepository.update(itemId, itemDto));
-        return itemDto;
+        userService.findById(userId);
+        Item oldItem = isExist(itemId);
+        checkItemOwner(userId, oldItem);
+        return ItemMapper.toDto(itemRepository.save(ItemMapper.updateItemFromDto(oldItem, itemDto)));
     }
 
-    //TODO исправить метод
     @Override
     public ItemDto getByItemId(Long userId, Long itemId) {
         userService.findById(userId);
@@ -53,14 +51,12 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public List<ItemDto> getAllItemsDyUserId(Long userId) {
         userService.findById(userId);
-//        return itemRepository.getAllByUserId(userId)
-//                .stream()
-//                .map(ItemMapper::toDto)
-//                .collect(Collectors.toList());
-        return Collections.emptyList();
+        return itemRepository.findAllByUserId(userId)
+                .stream()
+                .map(ItemMapper::toDto)
+                .collect(Collectors.toList());
     }
 
-    //TODO исправить метод
     @Override
     public void delete(Long userId, Long itemId) {
         userService.findById(userId);
@@ -76,14 +72,13 @@ public class ItemServiceImpl implements ItemService {
         if (text == null || text.isEmpty()) {
             return Collections.emptyList();
         }
-//        List<Item> items = itemRepository.search(text);
-//        if (items.isEmpty()) {
-//            throw new EntityNotFoundException(Item.class, String.format("text: %s", text));
-//        }
-//        return items.stream()
-//                .map(ItemMapper::toDto)
-//                .collect(Collectors.toList());
-        return Collections.emptyList();
+        List<Item> items = itemRepository.search(text);
+        if (items.isEmpty()) {
+            throw new EntityNotFoundException(Item.class, String.format("text: %s", text));
+        }
+        return items.stream()
+                .map(ItemMapper::toDto)
+                .collect(Collectors.toList());
     }
 
     private void checkItemOwner(Long userId, Item item) {
@@ -96,7 +91,7 @@ public class ItemServiceImpl implements ItemService {
 
     private Item isExist(Long itemId) {
         return itemRepository.findById(itemId)
-                .orElseThrow(() -> new EntityNotFoundException(Item.class, String.format("ID: %s", itemId.toString())));
+                .orElseThrow(() -> new EntityNotFoundException(Item.class, String.format("ID: %s", itemId)));
     }
 
 

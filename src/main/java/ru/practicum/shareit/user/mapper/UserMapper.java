@@ -1,9 +1,9 @@
 package ru.practicum.shareit.user.mapper;
 
-import ru.practicum.shareit.exception.EntityNotFoundException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 
+//TODO прикрутить MapStruct
 public class UserMapper {
     public static UserDto toUserDto(User user) {
         return UserDto.builder()
