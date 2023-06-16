@@ -1,5 +1,6 @@
 package ru.practicum.shareit.user.mapper;
 
+import ru.practicum.shareit.exception.EntityNotFoundException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 
@@ -18,5 +19,11 @@ public class UserMapper {
                 .name(userDto.getName())
                 .email(userDto.getEmail())
                 .build();
+    }
+
+    public static User updateUserFromDto(UserDto oldUser, UserDto userDto) {
+        oldUser.setName(userDto.getName() != null ? userDto.getName() : oldUser.getName());
+        oldUser.setEmail(userDto.getEmail() != null ? userDto.getEmail() : oldUser.getEmail());
+        return fromUserDto(oldUser);
     }
 }
