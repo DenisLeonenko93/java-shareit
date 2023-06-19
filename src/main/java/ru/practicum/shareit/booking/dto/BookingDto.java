@@ -16,14 +16,14 @@ import java.time.LocalDateTime;
 @Builder
 public class BookingDto {
     private Long id;
-    @Positive
+    @Positive(message = "Указано отрицательное значение Id")
     private Long itemId;
 
-    @NotNull
-    @FutureOrPresent
+    @NotNull(message = "Дата указана некорректно")
+    @FutureOrPresent(message = "Дата указана некорректно")
     private LocalDateTime start;
 
-    @NotNull
-    @Future
+    @NotNull(message = "Дата указана некорректно")
+    @Future(message = "Дата указана некорректно")
     private LocalDateTime end;
 }

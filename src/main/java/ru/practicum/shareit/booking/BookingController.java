@@ -8,6 +8,7 @@ import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingResponseDto;
 import ru.practicum.shareit.booking.service.BookingService;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.util.LogExecution;
 
 import javax.validation.Valid;
 
@@ -22,9 +23,18 @@ public class BookingController {
     private final BookingService bookingService;
 
     @PostMapping
+    @LogExecution
     public ResponseEntity<BookingResponseDto> create(@RequestHeader("X-Sharer-User-Id") Long userId,
                                                      @RequestBody @Valid BookingDto bookingDto) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(bookingService.create(userId, bookingDto));
+    }
+
+    @PatchMapping("/{bookingId}")
+    @LogExecution(withArgs = true)
+    public ResponseEntity<BookingResponseDto> bookingConfirmation(@RequestHeader("X-Sharer-User-Id") Long userId,
+                                                                  @PathVariable Long bookingId,
+                                                                  @RequestParam Boolean approved) {
+        return ResponseEntity.ok(bookingService.bookingConfirmation(userId, bookingId, approved));
     }
 }
