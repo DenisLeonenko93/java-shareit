@@ -11,6 +11,7 @@ import javax.persistence.*;
 
 /**
  * TODO Sprint add-controllers.
+ * TODO DynamicUpdate прикрутить аннотацию
  */
 
 @Data

@@ -35,10 +35,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto create(UserDto userDto) {
-        List<User> users = userRepository.findByEmail(userDto.getEmail());
-        if (!users.isEmpty()) {
-            throw new CreateDuplicateEntityException(User.class, users.get(0).getId());
-        }
         User user = UserMapper.fromUserDto(userDto);
         return UserMapper.toUserDto(userRepository.save(user));
     }

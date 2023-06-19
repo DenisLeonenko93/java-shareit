@@ -1,7 +1,7 @@
 package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.DataAccessException;
 import ru.practicum.shareit.exception.EntityNotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
@@ -16,7 +16,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@RestController
+@Service
 @RequiredArgsConstructor
 public class ItemServiceImpl implements ItemService {
 
@@ -31,7 +31,6 @@ public class ItemServiceImpl implements ItemService {
         return ItemMapper.toDto(itemRepository.save(item));
     }
 
-    //TODO исправить метод
     @Override
     public ItemDto update(Long userId, Long itemId, ItemDto itemDto) {
         userService.findById(userId);
@@ -47,7 +46,11 @@ public class ItemServiceImpl implements ItemService {
         return ItemMapper.toDto(item);
     }
 
-    //TODO исправить метод
+    @Override
+    public ItemDto findOne(Long itemId) {
+        return ItemMapper.toDto(isExist(itemId));
+    }
+
     @Override
     public List<ItemDto> getAllItemsDyUserId(Long userId) {
         userService.findById(userId);
@@ -65,7 +68,6 @@ public class ItemServiceImpl implements ItemService {
         itemRepository.deleteById(itemId);
     }
 
-    //TODO исправить метод
     @Override
     public List<ItemDto> search(Long userId, String text) {
         userService.findById(userId);
