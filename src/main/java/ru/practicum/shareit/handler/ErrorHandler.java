@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.practicum.shareit.exception.CreateDuplicateEntityException;
 import ru.practicum.shareit.exception.DataAccessException;
 import ru.practicum.shareit.exception.EntityNotFoundException;
+import ru.practicum.shareit.exception.ValidationException;
 
 import static org.springframework.http.HttpStatus.*;
 
@@ -35,11 +36,20 @@ public class ErrorHandler {
 
     @ExceptionHandler(DataAccessException.class)
     @ResponseStatus(FORBIDDEN)
-    public ErrorInfo handleDataAccess(DataAccessException e) {
+    public ErrorInfo handleValidationException(DataAccessException e) {
         log.warn(e.getMessage());
         return new ErrorInfo(DataAccessException.class,
                 e.getMessage());
     }
+
+    @ExceptionHandler(ValidationException.class)
+    @ResponseStatus(BAD_REQUEST)
+    public ErrorInfo handleValidationException(ValidationException e) {
+        log.warn(e.getMessage());
+        return new ErrorInfo(ValidationException.class,
+                e.getMessage());
+    }
+
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(BAD_REQUEST)

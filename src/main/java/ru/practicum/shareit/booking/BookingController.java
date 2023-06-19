@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingDto;
+import ru.practicum.shareit.booking.dto.BookingResponseDto;
 import ru.practicum.shareit.booking.service.BookingService;
 import ru.practicum.shareit.item.dto.ItemDto;
 
@@ -21,8 +22,8 @@ public class BookingController {
     private final BookingService bookingService;
 
     @PostMapping
-    public ResponseEntity<BookingDto> create(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                             @RequestBody @Valid BookingDto bookingDto) {
+    public ResponseEntity<BookingResponseDto> create(@RequestHeader("X-Sharer-User-Id") Long userId,
+                                                     @RequestBody @Valid BookingDto bookingDto) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(bookingService.create(userId, bookingDto));
     }
