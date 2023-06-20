@@ -51,12 +51,14 @@ public class ItemServiceImpl implements ItemService {
         userService.findById(userId);
         Item item = isExist(itemId);
         ItemBooked itemBooked = ItemMapper.toItemBooked(item);
-        itemBooked.setLastBooking(bookingMapper.forItemResponseDto(
-                bookingRepository.findFirstByItemIdAndStatusAndEndBeforeOrderByEndDesc(itemBooked.getId(), BookingStatus.APPROVED, LocalDateTime.now())
-                        .orElse(null)));
-        itemBooked.setNextBooking(bookingMapper.forItemResponseDto(
-                bookingRepository.findFirstByItemIdAndStatusAndStartAfterOrderByStartAsc(itemBooked.getId(), BookingStatus.APPROVED, LocalDateTime.now())
-                        .orElse(null)));
+        if (item.getOwner().getId().equals(userId)) {
+            itemBooked.setLastBooking(bookingMapper.forItemResponseDto(
+                    bookingRepository.findFirstByItemIdAndStatusAndEndBeforeOrderByEndDesc(itemBooked.getId(), BookingStatus.APPROVED, LocalDateTime.now())
+                            .orElse(null)));
+            itemBooked.setNextBooking(bookingMapper.forItemResponseDto(
+                    bookingRepository.findFirstByItemIdAndStatusAndStartAfterOrderByStartAsc(itemBooked.getId(), BookingStatus.APPROVED, LocalDateTime.now())
+                            .orElse(null)));
+        }
         return itemBooked;
     }
 
