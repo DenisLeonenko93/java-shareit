@@ -7,10 +7,15 @@ import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.exception.DataAccessException;
 import ru.practicum.shareit.exception.EntityNotFoundException;
+import ru.practicum.shareit.exception.ValidationException;
+import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemBooked;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.mapper.CommentMapper;
 import ru.practicum.shareit.item.mapper.ItemMapper;
+import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.repository.CommentsRepository;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
@@ -27,6 +32,7 @@ public class ItemServiceImpl implements ItemService {
 
     private final ItemRepository itemRepository;
     private final BookingRepository bookingRepository;
+    private final CommentsRepository commentsRepository;
     private final UserService userService;
     private final BookingMapper bookingMapper;
 
@@ -59,6 +65,11 @@ public class ItemServiceImpl implements ItemService {
                     bookingRepository.findFirstByItemIdAndStatusAndStartAfterOrderByStartAsc(itemBooked.getId(), BookingStatus.APPROVED, LocalDateTime.now())
                             .orElse(null)));
         }
+        List<CommentDto> comments = commentsRepository.findByItem(item).stream()
+                .map(CommentMapper::toDto)
+                .collect(Collectors.toList());
+
+        itemBooked.setComments(comments);
         return itemBooked;
     }
 
@@ -73,13 +84,19 @@ public class ItemServiceImpl implements ItemService {
         List<ItemBooked> items = itemRepository.findAllByUserId(userId)
                 .stream()
                 .map(item -> {
-                    ItemBooked itemBooked =  ItemMapper.toItemBooked(item);
+                    ItemBooked itemBooked = ItemMapper.toItemBooked(item);
                     itemBooked.setLastBooking(bookingMapper.forItemResponseDto(
                             bookingRepository.findFirstByItemIdAndStatusAndEndBeforeOrderByEndDesc(itemBooked.getId(), BookingStatus.APPROVED, LocalDateTime.now())
                                     .orElse(null)));
                     itemBooked.setNextBooking(bookingMapper.forItemResponseDto(
                             bookingRepository.findFirstByItemIdAndStatusAndStartAfterOrderByStartAsc(itemBooked.getId(), BookingStatus.APPROVED, LocalDateTime.now())
                                     .orElse(null)));
+
+                    List<CommentDto> comments = commentsRepository.findByItem(item).stream()
+                            .map(CommentMapper::toDto)
+                            .collect(Collectors.toList());
+                    itemBooked.setComments(comments);
+
                     return itemBooked;
                 })
                 .collect(Collectors.toList());
@@ -108,6 +125,19 @@ public class ItemServiceImpl implements ItemService {
         return items.stream()
                 .map(ItemMapper::toDto)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public CommentDto createComment(Long userId, Long itemId, CommentDto commentDto) {
+        User author = UserMapper.fromUserDto(userService.findById(userId));
+        Item item = isExist(itemId);
+        bookingRepository.findFirstByItemIdAndBookerIdAndStatusAndEndBefore(itemId, userId, BookingStatus.APPROVED, LocalDateTime.now())
+                .orElseThrow(() -> (new ValidationException("Пользователь не брал предмет в аренду")));
+        Comment comment = CommentMapper.fromDto(commentDto);
+        comment.setItem(item);
+        comment.setAuthor(author);
+        comment.setCreated(LocalDateTime.now());
+        return CommentMapper.toDto(commentsRepository.save(comment));
     }
 
     private void checkItemOwner(Long userId, Item item) {
