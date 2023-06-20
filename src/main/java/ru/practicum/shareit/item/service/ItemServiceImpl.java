@@ -2,8 +2,11 @@ package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.booking.mapper.BookingMapper;
+import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.exception.DataAccessException;
 import ru.practicum.shareit.exception.EntityNotFoundException;
+import ru.practicum.shareit.item.dto.ItemBooked;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
@@ -12,6 +15,7 @@ import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -21,7 +25,9 @@ import java.util.stream.Collectors;
 public class ItemServiceImpl implements ItemService {
 
     private final ItemRepository itemRepository;
+    private final BookingRepository bookingRepository;
     private final UserService userService;
+    private final BookingMapper bookingMapper;
 
     @Override
     public ItemDto create(Long userId, ItemDto itemDto) {
@@ -40,10 +46,17 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public ItemDto getByItemId(Long userId, Long itemId) {
+    public ItemBooked getByItemId(Long userId, Long itemId) {
         userService.findById(userId);
         Item item = isExist(itemId);
-        return ItemMapper.toDto(item);
+        ItemBooked itemBooked = ItemMapper.toItemBooked(item);
+        itemBooked.setLastBooking(bookingMapper.forItemResponseDto(
+                bookingRepository.findFirstByItemIdAndEndBeforeOrderByEndAsc(itemBooked.getId(), LocalDateTime.now())
+                        .orElse(null)));
+        itemBooked.setNextBooking(bookingMapper.forItemResponseDto(
+                bookingRepository.findFirstByItemIdAndStartAfterOrderByStartDesc(itemBooked.getId(), LocalDateTime.now())
+                        .orElse(null)));
+        return itemBooked;
     }
 
     @Override
@@ -52,12 +65,23 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> getAllItemsDyUserId(Long userId) {
+    public List<ItemBooked> getAllItemsDyUserId(Long userId) {
         userService.findById(userId);
-        return itemRepository.findAllByUserId(userId)
+        List<ItemBooked> items = itemRepository.findAllByUserId(userId)
                 .stream()
-                .map(ItemMapper::toDto)
+                .map(item -> {
+                    ItemBooked itemBooked =  ItemMapper.toItemBooked(item);
+                    itemBooked.setLastBooking(bookingMapper.forItemResponseDto(
+                            bookingRepository.findFirstByItemIdAndEndBeforeOrderByEndAsc(itemBooked.getId(), LocalDateTime.now())
+                                    .orElse(null)));
+                    itemBooked.setNextBooking(bookingMapper.forItemResponseDto(
+                            bookingRepository.findFirstByItemIdAndStartAfterOrderByStartDesc(itemBooked.getId(), LocalDateTime.now())
+                                    .orElse(null)));
+                    return itemBooked;
+                })
                 .collect(Collectors.toList());
+
+        return items;
     }
 
     @Override

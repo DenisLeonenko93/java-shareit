@@ -36,6 +36,9 @@ public class BookingServiceImpl implements BookingService {
         checkBookingDate(bookingDto);
         Booking booking = mapper.fromRequestDto(userId, bookingDto);
         itemIsAvailable(booking);
+        if (booking.getItem().getOwner().getId().equals(userId)) {
+            throw new ValidationException("Пользователь не может забронировать свой предмет.");
+        }
         booking.setStatus(BookingStatus.WAITING);
         return mapper.toResponseDto(bookingRepository.save(booking));
     }
@@ -45,7 +48,10 @@ public class BookingServiceImpl implements BookingService {
         Booking booking = bookingRepository.findById(bookingId).orElseThrow(
                 () -> new EntityNotFoundException(Booking.class, String.format("ID: %s", bookingId)));
         if (!booking.getItem().getOwner().getId().equals(userId)) {
-            throw new ValidationException("Указанный пользователь не является владельцем предмета.");
+            throw new EntityNotFoundException("Указанный пользователь не является владельцем предмета.");
+        }
+        if (booking.getStatus().equals(APPROVED)) {
+            throw new ValidationException("Данное бронирование уже подтверждено.");
         }
         booking.setStatus((approved) ? APPROVED : BookingStatus.REJECTED);
         return mapper.toResponseDto(bookingRepository.save(booking));
@@ -79,10 +85,10 @@ public class BookingServiceImpl implements BookingService {
                 bookings = bookingRepository.findByItemOwnerIdAndEndBeforeOrderByStartDesc(userId, LocalDateTime.now());
                 break;
             case WAITING:
-                bookings = bookingRepository.findByItemOwnerIdAndStatusOrderByStartDesc(userId, BookingState.WAITING.toString());
+                bookings = bookingRepository.findByItemOwnerIdAndStatusOrderByStartDesc(userId, BookingStatus.WAITING);
                 break;
             case REJECTED:
-                bookings = bookingRepository.findByItemOwnerIdAndStatusOrderByStartDesc(userId, REJECTED.toString());
+                bookings = bookingRepository.findByItemOwnerIdAndStatusOrderByStartDesc(userId, BookingStatus.REJECTED);
                 break;
             default:
                 bookings = bookingRepository.findByItemOwnerIdOrderByStartDesc(userId);
@@ -117,10 +123,10 @@ public class BookingServiceImpl implements BookingService {
                 bookings = bookingRepository.findAllByBookerIdAndEndBeforeOrderByStartDesc(userId, LocalDateTime.now());
                 break;
             case WAITING:
-                bookings = bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(userId, BookingState.WAITING.toString());
+                bookings = bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(userId, BookingStatus.WAITING);
                 break;
             case REJECTED:
-                bookings = bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(userId, REJECTED.toString());
+                bookings = bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(userId, BookingStatus.REJECTED);
                 break;
             default:
                 bookings = bookingRepository.findAllByBookerIdOrderByStartDesc(userId);
@@ -138,7 +144,7 @@ public class BookingServiceImpl implements BookingService {
                 () -> new EntityNotFoundException(Booking.class, String.format("ID: %s", bookingId)));
         if (!booking.getBooker().getId().equals(userId) &&
                 !booking.getItem().getOwner().getId().equals(userId)) {
-            throw new DataAccessException("Указанный пользователь не является владельцем предмета или автором бронирования.");
+            throw new EntityNotFoundException("Указанный пользователь не является владельцем предмета или автором бронирования.");
         }
         return mapper.toResponseDto(booking);
     }

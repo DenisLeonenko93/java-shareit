@@ -19,11 +19,11 @@ public class BookingDto {
     @Positive(message = "Указано отрицательное значение Id")
     private Long itemId;
 
-    @NotNull(message = "Дата указана некорректно")
-    @FutureOrPresent(message = "Дата указана некорректно")
+    @NotNull(message = "Дата начала бронирования указана некорректно")
+    @FutureOrPresent(message = "Дата начала бронирования указана некорректно")
     private LocalDateTime start;
 
-    @NotNull(message = "Дата указана некорректно")
-    @Future(message = "Дата указана некорректно")
+    @NotNull(message = "Дата окончания бронирования указана некорректно")
+    @Future(message = "Дата окончания бронирования указана некорректно")
     private LocalDateTime end;
 }
