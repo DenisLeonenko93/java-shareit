@@ -16,7 +16,6 @@ import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.user.service.UserService;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -53,9 +52,51 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    public List<BookingResponseDto> findAllBookingsByItemOwner(Long userId, String bookingState) {
+        userService.findById(userId);
+        List<Booking> bookings;
+        BookingState state;
+        try {
+            state = BookingState.valueOf(bookingState);
+        } catch (Exception e) {
+            throw new UnsupportedStatusException(bookingState);
+        }
+
+        if (bookingRepository.findByItemOwnerIdOrderByStartDesc(userId).isEmpty()) {
+            throw new ValidationException("Пользователь не имеет забронированных предметов.");
+        }
+
+        switch (state) {
+            case CURRENT:
+                bookings = bookingRepository.findByItemOwnerIdAndStartBeforeAndEndAfterOrderByStartDesc(userId,
+                        LocalDateTime.now(),
+                        LocalDateTime.now());
+                break;
+            case FUTURE:
+                bookings = bookingRepository.findByItemOwnerIdAndStartAfterOrderByStartDesc(userId, LocalDateTime.now());
+                break;
+            case PAST:
+                bookings = bookingRepository.findByItemOwnerIdAndEndBeforeOrderByStartDesc(userId, LocalDateTime.now());
+                break;
+            case WAITING:
+                bookings = bookingRepository.findByItemOwnerIdAndStatusOrderByStartDesc(userId, BookingState.WAITING.toString());
+                break;
+            case REJECTED:
+                bookings = bookingRepository.findByItemOwnerIdAndStatusOrderByStartDesc(userId, REJECTED.toString());
+                break;
+            default:
+                bookings = bookingRepository.findByItemOwnerIdOrderByStartDesc(userId);
+                break;
+        }
+        return bookings.stream()
+                .map(mapper::toResponseDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public List<BookingResponseDto> findAllBookingsByState(Long userId, String bookingState) {
         userService.findById(userId);
-        List<Booking> bookings = new ArrayList<>();
+        List<Booking> bookings;
         BookingState state;
         try {
             state = BookingState.valueOf(bookingState);

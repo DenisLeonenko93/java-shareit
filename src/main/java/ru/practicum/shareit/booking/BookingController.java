@@ -51,4 +51,11 @@ public class BookingController {
                                                                    @RequestParam(defaultValue = "ALL", required = false) String state) {
         return ResponseEntity.ok(bookingService.findAllBookingsByState(userId, state));
     }
+
+    @GetMapping("/owner")
+    @LogExecution(withArgs = true)
+    public ResponseEntity<List<BookingResponseDto>> getAllBookingsByItemOwner(@RequestHeader("X-Sharer-User-Id") Long userId,
+                                                                   @RequestParam(defaultValue = "ALL", required = false) String state) {
+        return ResponseEntity.ok(bookingService.findAllBookingsByItemOwner(userId, state));
+    }
 }
