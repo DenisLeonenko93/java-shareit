@@ -3,6 +3,7 @@ package ru.practicum.shareit.item.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
+import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.exception.DataAccessException;
 import ru.practicum.shareit.exception.EntityNotFoundException;
@@ -51,10 +52,10 @@ public class ItemServiceImpl implements ItemService {
         Item item = isExist(itemId);
         ItemBooked itemBooked = ItemMapper.toItemBooked(item);
         itemBooked.setLastBooking(bookingMapper.forItemResponseDto(
-                bookingRepository.findFirstByItemIdAndEndBeforeOrderByEndAsc(itemBooked.getId(), LocalDateTime.now())
+                bookingRepository.findFirstByItemIdAndStatusAndEndBeforeOrderByEndDesc(itemBooked.getId(), BookingStatus.APPROVED, LocalDateTime.now())
                         .orElse(null)));
         itemBooked.setNextBooking(bookingMapper.forItemResponseDto(
-                bookingRepository.findFirstByItemIdAndStartAfterOrderByStartDesc(itemBooked.getId(), LocalDateTime.now())
+                bookingRepository.findFirstByItemIdAndStatusAndStartAfterOrderByStartAsc(itemBooked.getId(), BookingStatus.APPROVED, LocalDateTime.now())
                         .orElse(null)));
         return itemBooked;
     }
@@ -72,10 +73,10 @@ public class ItemServiceImpl implements ItemService {
                 .map(item -> {
                     ItemBooked itemBooked =  ItemMapper.toItemBooked(item);
                     itemBooked.setLastBooking(bookingMapper.forItemResponseDto(
-                            bookingRepository.findFirstByItemIdAndEndBeforeOrderByEndAsc(itemBooked.getId(), LocalDateTime.now())
+                            bookingRepository.findFirstByItemIdAndStatusAndEndBeforeOrderByEndDesc(itemBooked.getId(), BookingStatus.APPROVED, LocalDateTime.now())
                                     .orElse(null)));
                     itemBooked.setNextBooking(bookingMapper.forItemResponseDto(
-                            bookingRepository.findFirstByItemIdAndStartAfterOrderByStartDesc(itemBooked.getId(), LocalDateTime.now())
+                            bookingRepository.findFirstByItemIdAndStatusAndStartAfterOrderByStartAsc(itemBooked.getId(), BookingStatus.APPROVED, LocalDateTime.now())
                                     .orElse(null)));
                     return itemBooked;
                 })
