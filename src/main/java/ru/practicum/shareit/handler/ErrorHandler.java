@@ -92,20 +92,20 @@ public class ErrorHandler {
 
 
     private static class ErrorInfo {
-        String message;
         String error;
+        String errorClass;
 
         public ErrorInfo(Class<?> entityClass, String message) {
-            this.error = entityClass.getSimpleName();
-            this.message = message;
+            this.errorClass = entityClass.getSimpleName();
+            this.error = message;
+        }
+
+        public String getErrorClass() {
+            return errorClass;
         }
 
         public String getError() {
             return error;
-        }
-
-        public String getMessage() {
-            return message;
         }
     }
 }

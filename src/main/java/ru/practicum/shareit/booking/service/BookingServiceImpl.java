@@ -8,7 +8,6 @@ import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.repository.BookingRepository;
-import ru.practicum.shareit.exception.DataAccessException;
 import ru.practicum.shareit.exception.EntityNotFoundException;
 import ru.practicum.shareit.exception.UnsupportedStatusException;
 import ru.practicum.shareit.exception.ValidationException;
@@ -20,7 +19,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static ru.practicum.shareit.booking.model.BookingStatus.APPROVED;
-import static ru.practicum.shareit.booking.service.BookingState.REJECTED;
 
 @Service
 @RequiredArgsConstructor
@@ -37,7 +35,7 @@ public class BookingServiceImpl implements BookingService {
         Booking booking = mapper.fromRequestDto(userId, bookingDto);
         itemIsAvailable(booking);
         if (booking.getItem().getOwner().getId().equals(userId)) {
-            throw new ValidationException("Пользователь не может забронировать свой предмет.");
+            throw new EntityNotFoundException("Пользователь не может забронировать свой предмет.");
         }
         booking.setStatus(BookingStatus.WAITING);
         return mapper.toResponseDto(bookingRepository.save(booking));
@@ -69,7 +67,7 @@ public class BookingServiceImpl implements BookingService {
         }
 
         if (bookingRepository.findByItemOwnerIdOrderByStartDesc(userId).isEmpty()) {
-            throw new ValidationException("Пользователь не имеет забронированных предметов.");
+            throw new EntityNotFoundException("Пользователь не имеет забронированных предметов.");
         }
 
         switch (state) {
