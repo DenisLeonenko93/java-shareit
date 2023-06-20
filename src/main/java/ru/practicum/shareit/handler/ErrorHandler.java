@@ -7,10 +7,7 @@ import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import ru.practicum.shareit.exception.CreateDuplicateEntityException;
-import ru.practicum.shareit.exception.DataAccessException;
-import ru.practicum.shareit.exception.EntityNotFoundException;
-import ru.practicum.shareit.exception.ValidationException;
+import ru.practicum.shareit.exception.*;
 
 import static org.springframework.http.HttpStatus.*;
 
@@ -36,7 +33,7 @@ public class ErrorHandler {
 
     @ExceptionHandler(DataAccessException.class)
     @ResponseStatus(FORBIDDEN)
-    public ErrorInfo handleValidationException(DataAccessException e) {
+    public ErrorInfo handleUnsupportedStatusException(DataAccessException e) {
         log.warn(e.getMessage());
         return new ErrorInfo(DataAccessException.class,
                 e.getMessage());
@@ -44,9 +41,17 @@ public class ErrorHandler {
 
     @ExceptionHandler(ValidationException.class)
     @ResponseStatus(BAD_REQUEST)
-    public ErrorInfo handleValidationException(ValidationException e) {
+    public ErrorInfo handleUnsupportedStatusException(ValidationException e) {
         log.warn(e.getMessage());
         return new ErrorInfo(ValidationException.class,
+                e.getMessage());
+    }
+
+    @ExceptionHandler(UnsupportedStatusException.class)
+    @ResponseStatus(BAD_REQUEST)
+    public ErrorInfo handleUnsupportedStatusException(UnsupportedStatusException e) {
+        log.warn(e.getMessage());
+        return new ErrorInfo(UnsupportedStatusException.class,
                 e.getMessage());
     }
 
