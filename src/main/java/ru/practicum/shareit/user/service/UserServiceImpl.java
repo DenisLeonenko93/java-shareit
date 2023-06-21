@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.EntityNotFoundException;
 import ru.practicum.shareit.user.dto.UserDto;
-import ru.practicum.shareit.user.mapper.UserMapper;
+import ru.practicum.shareit.user.mapper.SimpleUserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
@@ -16,12 +16,13 @@ import java.util.stream.Collectors;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final SimpleUserMapper simpleUserMapper;
 
     @Override
     public List<UserDto> getAll() {
         return userRepository.findAll()
                 .stream()
-                .map(UserMapper::toUserDto)
+                .map(simpleUserMapper::userToDto)
                 .collect(Collectors.toList());
     }
 
@@ -29,13 +30,13 @@ public class UserServiceImpl implements UserService {
     public UserDto findById(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException(User.class, String.format("ID: %s", userId)));
-        return UserMapper.toUserDto(user);
+        return simpleUserMapper.userToDto(user);
     }
 
     @Override
     public UserDto create(UserDto userDto) {
-        User user = UserMapper.fromUserDto(userDto);
-        return UserMapper.toUserDto(userRepository.save(user));
+        User user = simpleUserMapper.userFromDto(userDto);
+        return simpleUserMapper.userToDto(userRepository.save(user));
     }
 
 
@@ -46,9 +47,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto update(Long userId, UserDto userDto) {
-        UserDto oldUser = findById(userId);
-        userDto.setId(userId);
-        User user = UserMapper.updateUserFromDto(oldUser, userDto);
-        return UserMapper.toUserDto(userRepository.saveAndFlush(user));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException(User.class, String.format("ID: %s", userId)));
+        simpleUserMapper.updateUserFromDto(userDto, user);
+        return simpleUserMapper.userToDto(userRepository.saveAndFlush(user));
     }
 }

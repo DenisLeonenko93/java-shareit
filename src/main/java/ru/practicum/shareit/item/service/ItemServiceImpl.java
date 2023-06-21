@@ -17,7 +17,7 @@ import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.CommentsRepository;
 import ru.practicum.shareit.item.repository.ItemRepository;
-import ru.practicum.shareit.user.mapper.UserMapper;
+import ru.practicum.shareit.user.mapper.SimpleUserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 
@@ -35,10 +35,12 @@ public class ItemServiceImpl implements ItemService {
     private final CommentsRepository commentsRepository;
     private final UserService userService;
     private final BookingMapper bookingMapper;
+    private final SimpleUserMapper userMapper;
+    private final CommentMapper commentMapper;
 
     @Override
     public ItemDto create(Long userId, ItemDto itemDto) {
-        User user = UserMapper.fromUserDto(userService.findById(userId));
+        User user = userMapper.userFromDto(userService.findById(userId));
         Item item = ItemMapper.fromDto(itemDto);
         item.setOwner(user);
         return ItemMapper.toDto(itemRepository.save(item));
@@ -66,7 +68,7 @@ public class ItemServiceImpl implements ItemService {
                             .orElse(null)));
         }
         List<CommentDto> comments = commentsRepository.findByItem(item).stream()
-                .map(CommentMapper::toDto)
+                .map(commentMapper::commentToDto)
                 .collect(Collectors.toList());
 
         itemBooked.setComments(comments);
@@ -93,7 +95,7 @@ public class ItemServiceImpl implements ItemService {
                                     .orElse(null)));
 
                     List<CommentDto> comments = commentsRepository.findByItem(item).stream()
-                            .map(CommentMapper::toDto)
+                            .map(commentMapper::commentToDto)
                             .collect(Collectors.toList());
                     itemBooked.setComments(comments);
 
@@ -129,15 +131,15 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public CommentDto createComment(Long userId, Long itemId, CommentDto commentDto) {
-        User author = UserMapper.fromUserDto(userService.findById(userId));
+        User author = userMapper.userFromDto(userService.findById(userId));
         Item item = isExist(itemId);
         bookingRepository.findFirstByItemIdAndBookerIdAndStatusAndEndBefore(itemId, userId, BookingStatus.APPROVED, LocalDateTime.now())
                 .orElseThrow(() -> (new ValidationException("Пользователь не брал предмет в аренду")));
-        Comment comment = CommentMapper.fromDto(commentDto);
+        Comment comment = commentMapper.commentFromDto(commentDto);
         comment.setItem(item);
         comment.setAuthor(author);
         comment.setCreated(LocalDateTime.now());
-        return CommentMapper.toDto(commentsRepository.save(comment));
+        return commentMapper.commentToDto(commentsRepository.save(comment));
     }
 
     private void checkItemOwner(Long userId, Item item) {
