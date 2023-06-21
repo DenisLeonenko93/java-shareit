@@ -59,7 +59,7 @@ public class ItemServiceImpl implements ItemService {
         ItemBooked itemBooked = ItemMapper.toItemBooked(item);
         if (item.getOwner().getId().equals(userId)) {
             itemBooked.setLastBooking(bookingMapper.forItemResponseDto(
-                    bookingRepository.findFirstByItemIdAndStatusAndEndBeforeOrderByEndDesc(itemBooked.getId(), BookingStatus.APPROVED, LocalDateTime.now())
+                    bookingRepository.findFirstByItemIdAndStatusAndStartBeforeOrderByEndDesc(itemBooked.getId(), BookingStatus.APPROVED, LocalDateTime.now())
                             .orElse(null)));
             itemBooked.setNextBooking(bookingMapper.forItemResponseDto(
                     bookingRepository.findFirstByItemIdAndStatusAndStartAfterOrderByStartAsc(itemBooked.getId(), BookingStatus.APPROVED, LocalDateTime.now())
@@ -86,7 +86,7 @@ public class ItemServiceImpl implements ItemService {
                 .map(item -> {
                     ItemBooked itemBooked = ItemMapper.toItemBooked(item);
                     itemBooked.setLastBooking(bookingMapper.forItemResponseDto(
-                            bookingRepository.findFirstByItemIdAndStatusAndEndBeforeOrderByEndDesc(itemBooked.getId(), BookingStatus.APPROVED, LocalDateTime.now())
+                            bookingRepository.findFirstByItemIdAndStatusAndStartBeforeOrderByEndDesc(itemBooked.getId(), BookingStatus.APPROVED, LocalDateTime.now())
                                     .orElse(null)));
                     itemBooked.setNextBooking(bookingMapper.forItemResponseDto(
                             bookingRepository.findFirstByItemIdAndStatusAndStartAfterOrderByStartAsc(itemBooked.getId(), BookingStatus.APPROVED, LocalDateTime.now())

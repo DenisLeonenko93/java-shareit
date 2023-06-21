@@ -42,7 +42,7 @@ public class ItemController {
     @GetMapping("/{itemId}")
     @LogExecution(withArgs = true)
     public ResponseEntity<ItemBooked> getByItemId(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                               @PathVariable("itemId") Long itemId) {
+                                                  @PathVariable("itemId") Long itemId) {
         return ResponseEntity.ok(itemService.getByItemId(userId, itemId));
     }
 
@@ -69,9 +69,9 @@ public class ItemController {
 
     @PostMapping("/{itemId}/comment")
     @LogExecution(withArgs = true)
-    public ResponseEntity<CommentDto> createComment (@RequestHeader("X-Sharer-User-Id") Long userId,
-                                                     @PathVariable("itemId") Long itemId,
-                                                     @RequestBody @Valid CommentDto commentDto) {
+    public ResponseEntity<CommentDto> createComment(@RequestHeader("X-Sharer-User-Id") Long userId,
+                                                    @PathVariable("itemId") Long itemId,
+                                                    @RequestBody @Valid CommentDto commentDto) {
         return ResponseEntity.ok(itemService.createComment(userId, itemId, commentDto));
     }
 }
