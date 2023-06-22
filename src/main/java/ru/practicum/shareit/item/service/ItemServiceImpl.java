@@ -2,7 +2,7 @@ package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.booking.mapper.BookingMapper;
+import ru.practicum.shareit.booking.mapper.SimpleBookingMapper;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.exception.DataAccessException;
@@ -34,7 +34,7 @@ public class ItemServiceImpl implements ItemService {
     private final BookingRepository bookingRepository;
     private final CommentsRepository commentsRepository;
     private final UserService userService;
-    private final BookingMapper bookingMapper;
+    private final SimpleBookingMapper bookingMapper;
     private final ItemMapper itemMapper;
     private final UserMapper userMapper;
     private final CommentMapper commentMapper;
@@ -62,10 +62,10 @@ public class ItemServiceImpl implements ItemService {
         Item item = isExist(itemId);
         ItemBooked itemBooked = itemMapper.itemToItemBooked(item);
         if (item.getOwner().getId().equals(userId)) {
-            itemBooked.setLastBooking(bookingMapper.forItemResponseDto(
+            itemBooked.setLastBooking(bookingMapper.bookingForItemResponseDto(
                     bookingRepository.findFirstByItemIdAndStatusAndStartBeforeOrderByEndDesc(itemBooked.getId(), BookingStatus.APPROVED, LocalDateTime.now())
                             .orElse(null)));
-            itemBooked.setNextBooking(bookingMapper.forItemResponseDto(
+            itemBooked.setNextBooking(bookingMapper.bookingForItemResponseDto(
                     bookingRepository.findFirstByItemIdAndStatusAndStartAfterOrderByStartAsc(itemBooked.getId(), BookingStatus.APPROVED, LocalDateTime.now())
                             .orElse(null)));
         }
@@ -89,10 +89,10 @@ public class ItemServiceImpl implements ItemService {
                 .stream()
                 .map(item -> {
                     ItemBooked itemBooked = itemMapper.itemToItemBooked(item);
-                    itemBooked.setLastBooking(bookingMapper.forItemResponseDto(
+                    itemBooked.setLastBooking(bookingMapper.bookingForItemResponseDto(
                             bookingRepository.findFirstByItemIdAndStatusAndStartBeforeOrderByEndDesc(itemBooked.getId(), BookingStatus.APPROVED, LocalDateTime.now())
                                     .orElse(null)));
-                    itemBooked.setNextBooking(bookingMapper.forItemResponseDto(
+                    itemBooked.setNextBooking(bookingMapper.bookingForItemResponseDto(
                             bookingRepository.findFirstByItemIdAndStatusAndStartAfterOrderByStartAsc(itemBooked.getId(), BookingStatus.APPROVED, LocalDateTime.now())
                                     .orElse(null)));
 
@@ -142,6 +142,14 @@ public class ItemServiceImpl implements ItemService {
         comment.setAuthor(author);
         comment.setCreated(LocalDateTime.now());
         return commentMapper.commentToDto(commentsRepository.save(comment));
+    }
+
+    @Override
+    public void isOwner(Long userId, ItemDto itemDto) {
+        Item item = isExist(itemDto.getId());
+        if (item.getOwner().getId().equals(userId)) {
+            throw new EntityNotFoundException("Пользователь не может забронировать свой предмет.");
+        }
     }
 
     private void checkItemOwner(Long userId, Item item) {

@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
  */
 @Data
 @Builder
-public class BookingDto {
+public class BookingRequestDto {
     private Long id;
     @Positive(message = "Указано отрицательное значение Id")
     private Long itemId;

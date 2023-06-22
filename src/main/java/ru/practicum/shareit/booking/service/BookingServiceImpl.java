@@ -2,16 +2,20 @@ package ru.practicum.shareit.booking.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.booking.dto.BookingDto;
+import ru.practicum.shareit.booking.dto.BookingRequestDto;
 import ru.practicum.shareit.booking.dto.BookingResponseDto;
-import ru.practicum.shareit.booking.mapper.BookingMapper;
+import ru.practicum.shareit.booking.mapper.SimpleBookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.exception.EntityNotFoundException;
 import ru.practicum.shareit.exception.UnsupportedStatusException;
 import ru.practicum.shareit.exception.ValidationException;
+import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.item.service.ItemService;
+import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.user.repository.UserRepository;
 import ru.practicum.shareit.user.service.UserService;
 
 import java.time.LocalDateTime;
@@ -27,18 +31,34 @@ public class BookingServiceImpl implements BookingService {
     private final BookingRepository bookingRepository;
     private final UserService userService;
     private final ItemService itemService;
-    private final BookingMapper mapper;
+
+    private final ItemRepository itemRepository;
+    private final UserRepository userRepository;
+    private final SimpleBookingMapper bookingMapper;
 
     @Override
-    public BookingResponseDto create(Long userId, BookingDto bookingDto) {
-        checkBookingDate(bookingDto);
-        Booking booking = mapper.fromRequestDto(userId, bookingDto);
-        itemIsAvailable(booking);
-        if (booking.getItem().getOwner().getId().equals(userId)) {
+    public BookingResponseDto create(Long userId, BookingRequestDto bookingRequestDto) {
+        checkBookingDate(bookingRequestDto);
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException(User.class, String.format("ID: %s", userId)));
+        Item item = itemRepository.findById(bookingRequestDto.getItemId())
+                .orElseThrow(() -> new EntityNotFoundException(Item.class, String.format("ID: %s", bookingRequestDto.getItemId())));
+
+        if (!item.getAvailable()) {
+            throw new ValidationException("Указанный в бронировании предмет занят.");
+        }
+
+        if (item.getOwner().getId().equals(userId)) {
             throw new EntityNotFoundException("Пользователь не может забронировать свой предмет.");
         }
+
+        Booking booking = bookingMapper.bookingFromRequestDto(bookingRequestDto);
+        booking.setBooker(user);
+        booking.setItem(item);
         booking.setStatus(BookingStatus.WAITING);
-        return mapper.toResponseDto(bookingRepository.save(booking));
+
+        return bookingMapper.bookingToResponseDto(bookingRepository.save(booking));
     }
 
     @Override
@@ -52,7 +72,7 @@ public class BookingServiceImpl implements BookingService {
             throw new ValidationException("Данное бронирование уже подтверждено.");
         }
         booking.setStatus((approved) ? APPROVED : BookingStatus.REJECTED);
-        return mapper.toResponseDto(bookingRepository.save(booking));
+        return bookingMapper.bookingToResponseDto(bookingRepository.save(booking));
     }
 
     @Override
@@ -93,7 +113,7 @@ public class BookingServiceImpl implements BookingService {
                 break;
         }
         return bookings.stream()
-                .map(mapper::toResponseDto)
+                .map(bookingMapper::bookingToResponseDto)
                 .collect(Collectors.toList());
     }
 
@@ -131,7 +151,7 @@ public class BookingServiceImpl implements BookingService {
                 break;
         }
         return bookings.stream()
-                .map(mapper::toResponseDto)
+                .map(bookingMapper::bookingToResponseDto)
                 .collect(Collectors.toList());
     }
 
@@ -144,19 +164,14 @@ public class BookingServiceImpl implements BookingService {
                 !booking.getItem().getOwner().getId().equals(userId)) {
             throw new EntityNotFoundException("Указанный пользователь не является владельцем предмета или автором бронирования.");
         }
-        return mapper.toResponseDto(booking);
+        return bookingMapper.bookingToResponseDto(booking);
     }
 
-    private void checkBookingDate(BookingDto bookingDto) {
-        if (bookingDto.getEnd().isBefore(bookingDto.getStart()) ||
-                bookingDto.getEnd().equals(bookingDto.getStart())) {
+    private void checkBookingDate(BookingRequestDto bookingRequestDto) {
+        if (bookingRequestDto.getEnd().isBefore(bookingRequestDto.getStart()) ||
+                bookingRequestDto.getEnd().equals(bookingRequestDto.getStart())) {
             throw new ValidationException("Дата окончания бронирования раньше даты начала.");
         }
     }
 
-    private void itemIsAvailable(Booking booking) {
-        if (!booking.getItem().getAvailable()) {
-            throw new ValidationException("Указанный в бронировании предмет занят.");
-        }
-    }
 }

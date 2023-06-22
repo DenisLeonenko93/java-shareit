@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.booking.dto.BookingDto;
+import ru.practicum.shareit.booking.dto.BookingRequestDto;
 import ru.practicum.shareit.booking.dto.BookingResponseDto;
 import ru.practicum.shareit.booking.service.BookingService;
 import ru.practicum.shareit.util.LogExecution;
@@ -25,9 +25,9 @@ public class BookingController {
     @PostMapping
     @LogExecution
     public ResponseEntity<BookingResponseDto> create(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                                     @RequestBody @Valid BookingDto bookingDto) {
+                                                     @RequestBody @Valid BookingRequestDto bookingRequestDto) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(bookingService.create(userId, bookingDto));
+                .body(bookingService.create(userId, bookingRequestDto));
     }
 
     @PatchMapping("/{bookingId}")
@@ -42,7 +42,7 @@ public class BookingController {
     @LogExecution(withArgs = true)
     public ResponseEntity<BookingResponseDto> getBookingById(@RequestHeader("X-Sharer-User-Id") Long userId,
                                                              @PathVariable Long bookingId) {
-        return  ResponseEntity.ok(bookingService.getBookingById(userId, bookingId));
+        return ResponseEntity.ok(bookingService.getBookingById(userId, bookingId));
     }
 
     @GetMapping
@@ -55,7 +55,7 @@ public class BookingController {
     @GetMapping("/owner")
     @LogExecution(withArgs = true)
     public ResponseEntity<List<BookingResponseDto>> getAllBookingsByItemOwner(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                                                   @RequestParam(defaultValue = "ALL", required = false) String state) {
+                                                                              @RequestParam(defaultValue = "ALL", required = false) String state) {
         return ResponseEntity.ok(bookingService.findAllBookingsByItemOwner(userId, state));
     }
 }

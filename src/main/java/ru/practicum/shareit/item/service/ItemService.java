@@ -22,4 +22,6 @@ public interface ItemService {
     List<ItemDto> search(Long userId, String text);
 
     CommentDto createComment(Long userId, Long itemId, CommentDto commentDto);
+
+    void isOwner(Long userId, ItemDto itemDto);
 }
