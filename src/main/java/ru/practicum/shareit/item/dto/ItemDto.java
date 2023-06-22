@@ -19,5 +19,4 @@ public class ItemDto {
     private String description;
     @NotNull(message = "Поле available должно быть заполнено.")
     private Boolean available;
-    private Long requestId;
 }

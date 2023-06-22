@@ -17,7 +17,7 @@ import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.CommentsRepository;
 import ru.practicum.shareit.item.repository.ItemRepository;
-import ru.practicum.shareit.user.mapper.SimpleUserMapper;
+import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 
@@ -35,30 +35,32 @@ public class ItemServiceImpl implements ItemService {
     private final CommentsRepository commentsRepository;
     private final UserService userService;
     private final BookingMapper bookingMapper;
-    private final SimpleUserMapper userMapper;
+    private final ItemMapper itemMapper;
+    private final UserMapper userMapper;
     private final CommentMapper commentMapper;
 
     @Override
     public ItemDto create(Long userId, ItemDto itemDto) {
         User user = userMapper.userFromDto(userService.findById(userId));
-        Item item = ItemMapper.fromDto(itemDto);
+        Item item = itemMapper.itemFromDto(itemDto);
         item.setOwner(user);
-        return ItemMapper.toDto(itemRepository.save(item));
+        return itemMapper.itemToDto(itemRepository.save(item));
     }
 
     @Override
     public ItemDto update(Long userId, Long itemId, ItemDto itemDto) {
         userService.findById(userId);
-        Item oldItem = isExist(itemId);
-        checkItemOwner(userId, oldItem);
-        return ItemMapper.toDto(itemRepository.save(ItemMapper.updateItemFromDto(oldItem, itemDto)));
+        Item item = isExist(itemId);
+        checkItemOwner(userId, item);
+        itemMapper.updateItemFromDto(itemDto, item);
+        return itemMapper.itemToDto(itemRepository.save(item));
     }
 
     @Override
     public ItemBooked getByItemId(Long userId, Long itemId) {
         userService.findById(userId);
         Item item = isExist(itemId);
-        ItemBooked itemBooked = ItemMapper.toItemBooked(item);
+        ItemBooked itemBooked = itemMapper.itemToItemBooked(item);
         if (item.getOwner().getId().equals(userId)) {
             itemBooked.setLastBooking(bookingMapper.forItemResponseDto(
                     bookingRepository.findFirstByItemIdAndStatusAndStartBeforeOrderByEndDesc(itemBooked.getId(), BookingStatus.APPROVED, LocalDateTime.now())
@@ -77,7 +79,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDto findOne(Long itemId) {
-        return ItemMapper.toDto(isExist(itemId));
+        return itemMapper.itemToDto(isExist(itemId));
     }
 
     @Override
@@ -86,7 +88,7 @@ public class ItemServiceImpl implements ItemService {
         List<ItemBooked> items = itemRepository.findAllByUserId(userId)
                 .stream()
                 .map(item -> {
-                    ItemBooked itemBooked = ItemMapper.toItemBooked(item);
+                    ItemBooked itemBooked = itemMapper.itemToItemBooked(item);
                     itemBooked.setLastBooking(bookingMapper.forItemResponseDto(
                             bookingRepository.findFirstByItemIdAndStatusAndStartBeforeOrderByEndDesc(itemBooked.getId(), BookingStatus.APPROVED, LocalDateTime.now())
                                     .orElse(null)));
@@ -125,7 +127,7 @@ public class ItemServiceImpl implements ItemService {
             throw new EntityNotFoundException(Item.class, String.format("text: %s", text));
         }
         return items.stream()
-                .map(ItemMapper::toDto)
+                .map(itemMapper::itemToDto)
                 .collect(Collectors.toList());
     }
 

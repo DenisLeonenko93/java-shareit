@@ -1,14 +1,21 @@
 package ru.practicum.shareit.user.mapper;
 
-import ru.practicum.shareit.user.dto.UserBookerDto;
+import org.mapstruct.BeanMapping;
+import org.mapstruct.Mapper;
+import org.mapstruct.MappingTarget;
+import org.mapstruct.NullValuePropertyMappingStrategy;
+import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.dto.UserForBookingResponseDto;
 import ru.practicum.shareit.user.model.User;
 
-//TODO прикрутить MapStruct
-public class UserMapper {
+@Mapper(componentModel = "spring")
+public interface UserMapper {
+    UserDto userToDto(User user);
 
-    public static UserBookerDto toBookerDto(User user) {
-        return UserBookerDto.builder()
-                .id(user.getId())
-                .build();
-    }
+    User userFromDto(UserDto userDto);
+
+    UserForBookingResponseDto userToDtoForBookingResponseDto(User user);
+
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    void updateUserFromDto(UserDto userDto, @MappingTarget User user);
 }

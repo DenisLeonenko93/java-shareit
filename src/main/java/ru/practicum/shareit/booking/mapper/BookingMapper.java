@@ -20,6 +20,8 @@ public class BookingMapper {
 
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
+    private final UserMapper userMapper;
+    private final ItemMapper itemMapper;
 
 
     public Booking fromRequestDto(Long userId, BookingDto bookingDto) {
@@ -31,6 +33,7 @@ public class BookingMapper {
         Booking booking = fromDto(bookingDto);
         booking.setItem(item);
         booking.setBooker(booker);
+
         return booking;
     }
 
@@ -60,8 +63,8 @@ public class BookingMapper {
                 .start(booking.getStart())
                 .end(booking.getEnd())
                 .status(booking.getStatus())
-                .item(ItemMapper.itemForBookingResponseDto(booking.getItem()))
-                .booker(UserMapper.toBookerDto(booking.getBooker()))
+                .item(itemMapper.itemToDtoForBookingResponseDto(booking.getItem()))
+                .booker(userMapper.userToDtoForBookingResponseDto(booking.getBooker()))
                 .build();
     }
 
