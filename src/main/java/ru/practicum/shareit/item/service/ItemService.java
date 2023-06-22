@@ -13,8 +13,6 @@ public interface ItemService {
 
     ItemBooked getByItemId(Long userId, Long itemId);
 
-    ItemDto findOne(Long itemId);
-
     List<ItemBooked> getAllItemsDyUserId(Long userId);
 
     void delete(Long userId, Long itemId);
@@ -23,5 +21,4 @@ public interface ItemService {
 
     CommentDto createComment(Long userId, Long itemId, CommentDto commentDto);
 
-    void isOwner(Long userId, ItemDto itemDto);
 }

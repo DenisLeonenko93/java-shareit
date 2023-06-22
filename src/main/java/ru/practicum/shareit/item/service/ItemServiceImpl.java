@@ -78,11 +78,6 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public ItemDto findOne(Long itemId) {
-        return itemMapper.itemToDto(isExist(itemId));
-    }
-
-    @Override
     public List<ItemBooked> getAllItemsDyUserId(Long userId) {
         userService.findById(userId);
         List<ItemBooked> items = itemRepository.findAllByUserId(userId)
@@ -144,13 +139,6 @@ public class ItemServiceImpl implements ItemService {
         return commentMapper.commentToDto(commentsRepository.save(comment));
     }
 
-    @Override
-    public void isOwner(Long userId, ItemDto itemDto) {
-        Item item = isExist(itemDto.getId());
-        if (item.getOwner().getId().equals(userId)) {
-            throw new EntityNotFoundException("Пользователь не может забронировать свой предмет.");
-        }
-    }
 
     private void checkItemOwner(Long userId, Item item) {
         if (!item.getOwner().getId().equals(userId)) {

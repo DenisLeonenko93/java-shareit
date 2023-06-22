@@ -6,7 +6,6 @@ import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import ru.practicum.shareit.item.dto.ItemBooked;
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.dto.ItemForBookingResponseDto;
 import ru.practicum.shareit.item.model.Item;
 
 @Mapper(componentModel = "spring")
@@ -16,8 +15,6 @@ public interface ItemMapper {
     Item itemFromDto(ItemDto itemDto);
 
     ItemBooked itemToItemBooked(Item item);
-
-    ItemForBookingResponseDto itemToDtoForBookingResponseDto(Item item);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateItemFromDto(ItemDto itemDto, @MappingTarget Item item);
