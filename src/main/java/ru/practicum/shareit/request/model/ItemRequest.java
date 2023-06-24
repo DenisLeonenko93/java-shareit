@@ -26,8 +26,6 @@ public class ItemRequest {
     @Column(length = 512, nullable = false)
     private String description;
 
-
-    //TODO при необходимости заменить fetch на EAGER
     @ManyToOne
     @JoinColumn(name = "requestor_id")
     private User requestor;
