@@ -1,14 +1,14 @@
 package ru.practicum.shareit.handler;
 
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingRequestHeaderException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import ru.practicum.shareit.exception.CreateDuplicateEntityException;
-import ru.practicum.shareit.exception.DataAccessException;
-import ru.practicum.shareit.exception.EntityNotFoundException;
+import ru.practicum.shareit.exception.*;
 
 import static org.springframework.http.HttpStatus.*;
 
@@ -34,11 +34,28 @@ public class ErrorHandler {
 
     @ExceptionHandler(DataAccessException.class)
     @ResponseStatus(FORBIDDEN)
-    public ErrorInfo handleDataAccess(DataAccessException e) {
+    public ErrorInfo handleUnsupportedStatusException(DataAccessException e) {
         log.warn(e.getMessage());
         return new ErrorInfo(DataAccessException.class,
                 e.getMessage());
     }
+
+    @ExceptionHandler(ValidationException.class)
+    @ResponseStatus(BAD_REQUEST)
+    public ErrorInfo handleUnsupportedStatusException(ValidationException e) {
+        log.warn(e.getMessage());
+        return new ErrorInfo(ValidationException.class,
+                e.getMessage());
+    }
+
+    @ExceptionHandler(UnsupportedStatusException.class)
+    @ResponseStatus(BAD_REQUEST)
+    public ErrorInfo handleUnsupportedStatusException(UnsupportedStatusException e) {
+        log.warn(e.getMessage());
+        return new ErrorInfo(UnsupportedStatusException.class,
+                e.getMessage());
+    }
+
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(BAD_REQUEST)
@@ -56,21 +73,39 @@ public class ErrorHandler {
                 e.getMessage());
     }
 
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    @ResponseStatus(BAD_REQUEST)
+    public ErrorInfo handleMissingServletRequestParameterException(MissingServletRequestParameterException e) {
+        log.warn(e.getMessage());
+        return new ErrorInfo(MissingServletRequestParameterException.class,
+                e.getMessage());
+    }
+
+    //TODO разобраться с описанием ошибки
+    @ExceptionHandler(ConstraintViolationException.class)
+    @ResponseStatus(CONFLICT)
+    public ErrorInfo handleHibernateViolationException(ConstraintViolationException e) {
+        log.warn(e.getLocalizedMessage());
+        return new ErrorInfo(ConstraintViolationException.class,
+                e.getMessage());
+    }
+
+
     private static class ErrorInfo {
-        String message;
         String error;
+        String errorClass;
 
         public ErrorInfo(Class<?> entityClass, String message) {
-            this.error = entityClass.getSimpleName();
-            this.message = message;
+            this.errorClass = entityClass.getSimpleName();
+            this.error = message;
+        }
+
+        public String getErrorClass() {
+            return errorClass;
         }
 
         public String getError() {
             return error;
-        }
-
-        public String getMessage() {
-            return message;
         }
     }
 }

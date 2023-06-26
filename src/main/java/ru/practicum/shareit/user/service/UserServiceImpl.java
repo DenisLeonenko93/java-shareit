@@ -16,37 +16,40 @@ import java.util.stream.Collectors;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final UserMapper userMapper;
 
     @Override
     public List<UserDto> getAll() {
-        return userRepository.getAll()
+        return userRepository.findAll()
                 .stream()
-                .map(UserMapper::toUserDto)
+                .map(userMapper::userToDto)
                 .collect(Collectors.toList());
     }
 
     @Override
     public UserDto findById(Long userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException(User.class, String.format("ID: %s", userId.toString())));
-        return UserMapper.toUserDto(user);
+                .orElseThrow(() -> new EntityNotFoundException(User.class, String.format("ID: %s", userId)));
+        return userMapper.userToDto(user);
     }
 
     @Override
     public UserDto create(UserDto userDto) {
-        User user = UserMapper.fromUserDto(userDto);
-        return UserMapper.toUserDto(userRepository.create(user));
+        User user = userMapper.userFromDto(userDto);
+        return userMapper.userToDto(userRepository.save(user));
     }
+
 
     @Override
     public void delete(Long userId) {
-        userRepository.delete(userId);
+        userRepository.deleteById(userId);
     }
 
     @Override
     public UserDto update(Long userId, UserDto userDto) {
-        findById(userId);
-        User user = UserMapper.fromUserDto(userDto);
-        return UserMapper.toUserDto(userRepository.update(userId, user));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException(User.class, String.format("ID: %s", userId)));
+        userMapper.updateUserFromDto(userDto, user);
+        return userMapper.userToDto(userRepository.saveAndFlush(user));
     }
 }

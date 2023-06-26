@@ -23,43 +23,6 @@ import java.util.StringJoiner;
 @Slf4j
 public class LoggingAspect {
 
-    @Pointcut("@annotation(ru.practicum.shareit.util.LogExecution)")
-    public void pointcut() {
-    }
-
-    @Around("pointcut()")
-    public Object log(ProceedingJoinPoint proceedingJoinPoint) throws Throwable {
-        Method method = ((MethodSignature) proceedingJoinPoint.getSignature()).getMethod();
-        LogExecution annotation = method.getAnnotation(LogExecution.class);
-        String className = method.getDeclaringClass().getSimpleName();
-        LogLevel logLevel = annotation.value();
-        String methodName = method.getName();
-        Object[] args = proceedingJoinPoint.getArgs();
-
-        String message = getMessage(
-                className,
-                methodName,
-                ((CodeSignature) proceedingJoinPoint.getSignature()).getParameterNames(),
-                args,
-                annotation.withArgs()
-        );
-        log(logLevel, message);
-
-        Instant start = Instant.now();
-        Object proceed = proceedingJoinPoint.proceed();
-        Instant end = Instant.now();
-
-        String resultMessage = getResultMessage(
-                className,
-                methodName,
-                getDuration(start, end, annotation.chronoUnit()),
-                annotation.withDuration()
-        );
-        log(logLevel, resultMessage);
-
-        return proceed;
-    }
-
     private static void log(LogLevel level, String message) {
         switch (level) {
             case DEBUG:
@@ -122,5 +85,42 @@ public class LoggingAspect {
                 chronoUnit.between(start, end),
                 chronoUnit.name().toLowerCase()
         );
+    }
+
+    @Pointcut("@annotation(ru.practicum.shareit.util.LogExecution)")
+    public void pointcut() {
+    }
+
+    @Around("pointcut()")
+    public Object log(ProceedingJoinPoint proceedingJoinPoint) throws Throwable {
+        Method method = ((MethodSignature) proceedingJoinPoint.getSignature()).getMethod();
+        LogExecution annotation = method.getAnnotation(LogExecution.class);
+        String className = method.getDeclaringClass().getSimpleName();
+        LogLevel logLevel = annotation.value();
+        String methodName = method.getName();
+        Object[] args = proceedingJoinPoint.getArgs();
+
+        String message = getMessage(
+                className,
+                methodName,
+                ((CodeSignature) proceedingJoinPoint.getSignature()).getParameterNames(),
+                args,
+                annotation.withArgs()
+        );
+        log(logLevel, message);
+
+        Instant start = Instant.now();
+        Object proceed = proceedingJoinPoint.proceed();
+        Instant end = Instant.now();
+
+        String resultMessage = getResultMessage(
+                className,
+                methodName,
+                getDuration(start, end, annotation.chronoUnit()),
+                annotation.withDuration()
+        );
+        log(logLevel, resultMessage);
+
+        return proceed;
     }
 }
