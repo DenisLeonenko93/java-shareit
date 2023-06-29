@@ -61,7 +61,6 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDto update(Long userId, Long itemId, ItemDto itemDto) {
-        userService.findById(userId);
         Item item = isExist(itemId);
         checkItemOwner(userId, item);
         itemMapper.updateItemFromDto(itemDto, item);
@@ -70,7 +69,6 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemBooked getByItemId(Long userId, Long itemId) {
-        userService.findById(userId);
         Item item = isExist(itemId);
         ItemBooked itemBooked = itemMapper.itemToItemBooked(item);
         if (item.getOwner().getId().equals(userId)) {
@@ -91,8 +89,6 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<ItemBooked> getAllItemsDyUserId(Long userId, Integer from, Integer size) {
-        userService.findById(userId);
-
         if (from < 0 || size < 0) {
             throw new ValidationException("Параметры запроса указаны некорректно, не могуть быть отрицательными.");
         }
@@ -124,7 +120,6 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public void delete(Long userId, Long itemId) {
-        userService.findById(userId);
         Item item = isExist(itemId);
         checkItemOwner(userId, item);
         itemRepository.deleteById(itemId);
@@ -132,7 +127,6 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<ItemDto> search(Long userId, String text, Integer from, Integer size) {
-        userService.findById(userId);
         if (text == null || text.isEmpty()) {
             return Collections.emptyList();
         }

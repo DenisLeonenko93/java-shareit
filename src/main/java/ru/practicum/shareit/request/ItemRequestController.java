@@ -5,7 +5,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.service.ItemRequestService;
+import ru.practicum.shareit.util.ExistValid;
 import ru.practicum.shareit.util.LogExecution;
+import ru.practicum.shareit.util.ModelType;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -32,12 +34,14 @@ public class ItemRequestController {
 
     @GetMapping
     @LogExecution
+    @ExistValid(value = ModelType.USER, idPropertyName = "userId")
     public ResponseEntity<List<ItemRequestDto>> getAllRequestsByUser(@RequestHeader("X-Sharer-User-Id") Long userId) {
         return ResponseEntity.ok(itemRequestService.getAllRequestByUser(userId));
     }
 
     @GetMapping("/{requestId}")
     @LogExecution
+    @ExistValid(value = ModelType.USER, idPropertyName = "userId")
     public ResponseEntity<ItemRequestDto> getRequestById(@RequestHeader("X-Sharer-User-Id") Long userId,
                                                          @PathVariable Long requestId) {
         return ResponseEntity.ok(itemRequestService.getRequestById(userId, requestId));
@@ -45,6 +49,7 @@ public class ItemRequestController {
 
     @GetMapping("/all")
     @LogExecution(withArgs = true)
+    @ExistValid(value = ModelType.USER, idPropertyName = "userId")
     public ResponseEntity<List<ItemRequestDto>> getAllRequests(@RequestHeader("X-Sharer-User-Id") Long userId,
                                                                @RequestParam(required = false, defaultValue = "0") Integer from,
                                                                @RequestParam(required = false, defaultValue = "10") Integer size) {
