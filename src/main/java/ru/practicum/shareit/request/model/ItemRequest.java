@@ -1,11 +1,13 @@
 package ru.practicum.shareit.request.model;
 
 import lombok.*;
+import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * TODO Sprint add-item-requests.
@@ -32,4 +34,9 @@ public class ItemRequest {
     private User requestor;
 
     private LocalDateTime created;
+
+    //TODO разобраться смо связями, долго работает.
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    @JoinColumn(name = "request_id")
+    private List<Item> items;
 }

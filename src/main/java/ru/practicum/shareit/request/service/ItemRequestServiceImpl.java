@@ -12,6 +12,7 @@ import ru.practicum.shareit.user.service.UserService;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -36,7 +37,10 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     public List<ItemRequestDto> getAllRequestByUser(Long userId) {
         userService.findById(userId);
 
+        List<ItemRequestDto> requests = itemRequestRepository.findByRequestorIdOrderByCreatedAsc(userId).stream()
+                .map(itemRequestMapper::toDto)
+                .collect(Collectors.toList());
 
-        return null;
+        return requests;
     }
 }
