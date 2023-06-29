@@ -1,10 +1,11 @@
 package ru.practicum.shareit.item.model;
 
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Getter
 @Setter
@@ -29,5 +30,6 @@ public class Comment {
     @JoinColumn(name = "author_id")
     private User author;
 
-    private LocalDateTime created;
+    @CreationTimestamp
+    private Instant created;
 }

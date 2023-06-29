@@ -15,7 +15,6 @@ import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 import ru.practicum.shareit.util.LogExecution;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -34,7 +33,6 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         User requestor = userMapper.userFromDto(userService.findById(userId));
         ItemRequest itemRequest = itemRequestMapper.fromDto(itemRequestDto);
         itemRequest.setRequestor(requestor);
-        itemRequest.setCreated(LocalDateTime.now());
         return itemRequestMapper.toDto(itemRequestRepository.save(itemRequest));
     }
 

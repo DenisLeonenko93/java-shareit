@@ -1,12 +1,13 @@
 package ru.practicum.shareit.request.model;
 
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 
 /**
@@ -33,7 +34,8 @@ public class ItemRequest {
     @JoinColumn(name = "requestor_id")
     private User requestor;
 
-    private LocalDateTime created;
+    @CreationTimestamp
+    private Instant created;
 
     //TODO разобраться смо связями, долго работает.
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
