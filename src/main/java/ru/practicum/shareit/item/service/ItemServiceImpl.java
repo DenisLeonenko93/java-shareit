@@ -2,7 +2,7 @@ package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.booking.mapper.SimpleBookingMapper;
+import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.exception.DataAccessException;
@@ -17,6 +17,8 @@ import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.CommentsRepository;
 import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.request.model.ItemRequest;
+import ru.practicum.shareit.request.repository.ItemRequestRepository;
 import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
@@ -33,8 +35,9 @@ public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
     private final BookingRepository bookingRepository;
     private final CommentsRepository commentsRepository;
+    private final ItemRequestRepository itemRequestRepository;
     private final UserService userService;
-    private final SimpleBookingMapper bookingMapper;
+    private final BookingMapper bookingMapper;
     private final ItemMapper itemMapper;
     private final UserMapper userMapper;
     private final CommentMapper commentMapper;
@@ -43,6 +46,13 @@ public class ItemServiceImpl implements ItemService {
     public ItemDto create(Long userId, ItemDto itemDto) {
         User user = userMapper.userFromDto(userService.findById(userId));
         Item item = itemMapper.itemFromDto(itemDto);
+
+        if (itemDto.getRequestId() != null) {
+            ItemRequest request = itemRequestRepository.findById(itemDto.getRequestId())
+                    .orElseThrow(() -> new EntityNotFoundException(ItemRequest.class, String.format("ID: %s", itemDto.getRequestId())));
+            item.setRequest(request);
+        }
+
         item.setOwner(user);
         return itemMapper.itemToDto(itemRepository.save(item));
     }

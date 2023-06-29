@@ -1,15 +1,13 @@
 package ru.practicum.shareit.item.mapper;
 
-import org.mapstruct.BeanMapping;
-import org.mapstruct.Mapper;
-import org.mapstruct.MappingTarget;
-import org.mapstruct.NullValuePropertyMappingStrategy;
+import org.mapstruct.*;
 import ru.practicum.shareit.item.dto.ItemBooked;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 
 @Mapper(componentModel = "spring")
 public interface ItemMapper {
+    @Mapping(target = "requestId", source = "item.request.id")
     ItemDto itemToDto(Item item);
 
     Item itemFromDto(ItemDto itemDto);

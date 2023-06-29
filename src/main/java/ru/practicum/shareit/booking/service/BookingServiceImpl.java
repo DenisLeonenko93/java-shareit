@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingRequestDto;
 import ru.practicum.shareit.booking.dto.BookingResponseDto;
-import ru.practicum.shareit.booking.mapper.SimpleBookingMapper;
+import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.repository.BookingRepository;
@@ -31,7 +31,7 @@ public class BookingServiceImpl implements BookingService {
     private final UserService userService;
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
-    private final SimpleBookingMapper bookingMapper;
+    private final BookingMapper bookingMapper;
 
     @Override
     public BookingResponseDto create(Long userId, BookingRequestDto bookingRequestDto) {
