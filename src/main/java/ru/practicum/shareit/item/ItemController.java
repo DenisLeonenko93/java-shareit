@@ -48,8 +48,10 @@ public class ItemController {
 
     @GetMapping
     @LogExecution
-    public ResponseEntity<List<ItemBooked>> getAllItemsByUserId(@RequestHeader("X-Sharer-User-Id") Long userId) {
-        return ResponseEntity.ok(itemService.getAllItemsDyUserId(userId));
+    public ResponseEntity<List<ItemBooked>> getAllItemsByUserId(@RequestHeader("X-Sharer-User-Id") Long userId,
+                                                                @RequestParam(required = false, defaultValue = "0") Integer from,
+                                                                @RequestParam(required = false, defaultValue = "10") Integer size) {
+        return ResponseEntity.ok(itemService.getAllItemsDyUserId(userId, from, size));
     }
 
     @DeleteMapping("/{itemId}")
@@ -63,8 +65,10 @@ public class ItemController {
     @GetMapping("/search")
     @LogExecution
     public ResponseEntity<List<ItemDto>> search(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                                @RequestParam("text") String text) {
-        return ResponseEntity.ok(itemService.search(userId, text));
+                                                @RequestParam("text") String text,
+                                                @RequestParam(required = false, defaultValue = "0") Integer from,
+                                                @RequestParam(required = false, defaultValue = "10") Integer size) {
+        return ResponseEntity.ok(itemService.search(userId, text, from, size));
     }
 
     @PostMapping("/{itemId}/comment")

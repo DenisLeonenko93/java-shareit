@@ -1,6 +1,8 @@
 package ru.practicum.shareit.booking.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingRequestDto;
 import ru.practicum.shareit.booking.dto.BookingResponseDto;
@@ -73,7 +75,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingResponseDto> findAllBookingsByItemOwner(Long userId, String bookingState) {
+    public List<BookingResponseDto> findAllBookingsByItemOwner(Long userId, String bookingState, Integer from, Integer size) {
         userService.findById(userId);
         List<Booking> bookings;
         BookingState state;
@@ -83,7 +85,13 @@ public class BookingServiceImpl implements BookingService {
             throw new UnsupportedStatusException(bookingState);
         }
 
-        if (bookingRepository.findByItemOwnerIdOrderByStartDesc(userId).isEmpty()) {
+        if (from < 0 || size < 0) {
+            throw new ValidationException("Параметры запроса указаны некорректно, не могуть быть отрицательными.");
+        }
+
+        Pageable page = PageRequest.of(from > 0 ? from / size : 0, size);
+
+        if (bookingRepository.findByItemOwnerIdOrderByStartDesc(userId, page).isEmpty()) {
             throw new EntityNotFoundException("Пользователь не имеет забронированных предметов.");
         }
 
@@ -91,22 +99,31 @@ public class BookingServiceImpl implements BookingService {
             case CURRENT:
                 bookings = bookingRepository.findByItemOwnerIdAndStartBeforeAndEndAfterOrderByStartDesc(userId,
                         LocalDateTime.now(),
-                        LocalDateTime.now());
+                        LocalDateTime.now(),
+                        page);
                 break;
             case FUTURE:
-                bookings = bookingRepository.findByItemOwnerIdAndStartAfterOrderByStartDesc(userId, LocalDateTime.now());
+                bookings = bookingRepository.findByItemOwnerIdAndStartAfterOrderByStartDesc(userId,
+                        LocalDateTime.now(),
+                        page);
                 break;
             case PAST:
-                bookings = bookingRepository.findByItemOwnerIdAndEndBeforeOrderByStartDesc(userId, LocalDateTime.now());
+                bookings = bookingRepository.findByItemOwnerIdAndEndBeforeOrderByStartDesc(userId,
+                        LocalDateTime.now(),
+                        page);
                 break;
             case WAITING:
-                bookings = bookingRepository.findByItemOwnerIdAndStatusOrderByStartDesc(userId, BookingStatus.WAITING);
+                bookings = bookingRepository.findByItemOwnerIdAndStatusOrderByStartDesc(userId,
+                        BookingStatus.WAITING,
+                        page);
                 break;
             case REJECTED:
-                bookings = bookingRepository.findByItemOwnerIdAndStatusOrderByStartDesc(userId, BookingStatus.REJECTED);
+                bookings = bookingRepository.findByItemOwnerIdAndStatusOrderByStartDesc(userId,
+                        BookingStatus.REJECTED,
+                        page);
                 break;
             default:
-                bookings = bookingRepository.findByItemOwnerIdOrderByStartDesc(userId);
+                bookings = bookingRepository.findByItemOwnerIdOrderByStartDesc(userId, page);
                 break;
         }
         return bookings.stream()
@@ -115,7 +132,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingResponseDto> findAllBookingsByState(Long userId, String bookingState) {
+    public List<BookingResponseDto> findAllBookingsByState(Long userId, String bookingState, Integer from, Integer size) {
         userService.findById(userId);
         List<Booking> bookings;
         BookingState state;
@@ -125,26 +142,33 @@ public class BookingServiceImpl implements BookingService {
             throw new UnsupportedStatusException(bookingState);
         }
 
+        if (from < 0 || size < 0) {
+            throw new ValidationException("Параметры запроса указаны некорректно, не могуть быть отрицательными.");
+        }
+
+        Pageable page = PageRequest.of(from > 0 ? from / size : 0, size);
+
         switch (state) {
             case CURRENT:
                 bookings = bookingRepository.findByBookerIdAndStartBeforeAndEndAfterOrderByStartAsc(userId,
                         LocalDateTime.now(),
-                        LocalDateTime.now());
+                        LocalDateTime.now(),
+                        page);
                 break;
             case FUTURE:
-                bookings = bookingRepository.findAllByBookerIdAndStartAfterOrderByStartDesc(userId, LocalDateTime.now());
+                bookings = bookingRepository.findAllByBookerIdAndStartAfterOrderByStartDesc(userId, LocalDateTime.now(), page);
                 break;
             case PAST:
-                bookings = bookingRepository.findAllByBookerIdAndEndBeforeOrderByStartDesc(userId, LocalDateTime.now());
+                bookings = bookingRepository.findAllByBookerIdAndEndBeforeOrderByStartDesc(userId, LocalDateTime.now(), page);
                 break;
             case WAITING:
-                bookings = bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(userId, BookingStatus.WAITING);
+                bookings = bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(userId, BookingStatus.WAITING, page);
                 break;
             case REJECTED:
-                bookings = bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(userId, BookingStatus.REJECTED);
+                bookings = bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(userId, BookingStatus.REJECTED, page);
                 break;
             default:
-                bookings = bookingRepository.findAllByBookerIdOrderByStartDesc(userId);
+                bookings = bookingRepository.findAllByBookerIdOrderByStartDesc(userId, page);
                 break;
         }
         return bookings.stream()

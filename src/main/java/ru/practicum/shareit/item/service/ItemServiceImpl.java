@@ -1,6 +1,8 @@
 package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.BookingStatus;
@@ -88,9 +90,16 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemBooked> getAllItemsDyUserId(Long userId) {
+    public List<ItemBooked> getAllItemsDyUserId(Long userId, Integer from, Integer size) {
         userService.findById(userId);
-        List<ItemBooked> items = itemRepository.findAllByUserId(userId)
+
+        if (from < 0 || size < 0) {
+            throw new ValidationException("Параметры запроса указаны некорректно, не могуть быть отрицательными.");
+        }
+
+        Pageable page = PageRequest.of(from > 0 ? from / size : 0, size);
+
+        List<ItemBooked> items = itemRepository.findAllByUserId(userId, page)
                 .stream()
                 .map(item -> {
                     ItemBooked itemBooked = itemMapper.itemToItemBooked(item);
@@ -122,12 +131,19 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> search(Long userId, String text) {
+    public List<ItemDto> search(Long userId, String text, Integer from, Integer size) {
         userService.findById(userId);
         if (text == null || text.isEmpty()) {
             return Collections.emptyList();
         }
-        List<Item> items = itemRepository.search(text);
+
+        if (from < 0 || size < 0) {
+            throw new ValidationException("Параметры запроса указаны некорректно, не могуть быть отрицательными.");
+        }
+
+        Pageable page = PageRequest.of(from > 0 ? from / size : 0, size);
+
+        List<Item> items = itemRepository.search(text, page);
         if (items.isEmpty()) {
             throw new EntityNotFoundException(Item.class, String.format("text: %s", text));
         }

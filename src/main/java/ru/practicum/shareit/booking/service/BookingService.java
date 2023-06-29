@@ -11,9 +11,9 @@ public interface BookingService {
 
     BookingResponseDto bookingConfirmation(Long userId, Long bookingId, Boolean approved);
 
-    List<BookingResponseDto> findAllBookingsByState(Long userId, String state);
+    List<BookingResponseDto> findAllBookingsByState(Long userId, String state, Integer from, Integer size);
 
     BookingResponseDto getBookingById(Long userId, Long bookingId);
 
-    List<BookingResponseDto> findAllBookingsByItemOwner(Long userId, String state);
+    List<BookingResponseDto> findAllBookingsByItemOwner(Long userId, String state, Integer from, Integer size);
 }
