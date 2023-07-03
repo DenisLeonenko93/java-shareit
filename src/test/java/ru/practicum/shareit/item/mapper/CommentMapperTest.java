@@ -42,7 +42,6 @@ class CommentMapperTest {
         CommentDto commentDto = mapper.commentToDto(comment);
 
 
-
         assertEquals(0L, commentDto.getId());
         assertEquals("description", commentDto.getText());
         assertEquals(Instant.MIN, commentDto.getCreated());

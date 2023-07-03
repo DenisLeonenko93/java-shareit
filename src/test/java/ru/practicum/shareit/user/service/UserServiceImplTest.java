@@ -111,16 +111,17 @@ class UserServiceImplTest {
                 .id(0L)
                 .name("Name")
                 .email("test@mail.ru").build();
-        User newUser = User.builder()
-                .id(0L)
-                .name("Update")
-                .email("test@mail.ru").build();
         UserDto newUserDto = UserDto.builder()
                 .name("Update").build();
         when(userRepository.findById(userId)).thenReturn(Optional.of(oldUser));
-        when(userMapper.updateUserFromDto(newUserDto, oldUser)).thenReturn(newUser);
+        doAnswer(invocation -> {
+            UserDto userDto = invocation.getArgument(0, UserDto.class);
+            User user = invocation.getArgument(1, User.class);
+            user.setName(userDto.getName());
+            return null;
+        }).when(userMapper).updateUserFromDto(any(UserDto.class), any(User.class));
 
-        UserDto actualUser = userService.update(userId, newUserDto);
+        userService.update(userId, newUserDto);
 
         verify(userMapper).updateUserFromDto(newUserDto, oldUser);
         verify(userRepository).saveAndFlush(userArgumentCaptor.capture());
@@ -143,8 +144,6 @@ class UserServiceImplTest {
                 .id(0L)
                 .name("Update")
                 .email("test@mail.ru").build();
-        UserDto newUserDto = UserDto.builder()
-                .name("Update").build();
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
         assertThrows(EntityNotFoundException.class,

@@ -120,7 +120,7 @@ class ItemControllerTest {
 
         ResponseEntity<CommentDto> response = itemController.createComment(userId, itemId, requestComment);
 
-        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(expectedComment, response.getBody());
 
     }

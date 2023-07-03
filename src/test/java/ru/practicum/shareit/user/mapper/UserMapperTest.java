@@ -50,10 +50,10 @@ class UserMapperTest {
                 .id(1L)
                 .name("Update").build();
 
-        User actualUser = mapper.updateUserFromDto(userDto, user);
+        mapper.updateUserFromDto(userDto, user);
 
-        assertEquals("name@name.ru", actualUser.getEmail());
-        assertEquals("Update", actualUser.getName());
+        assertEquals("name@name.ru", user.getEmail());
+        assertEquals("Update", user.getName());
     }
 
     @Test
@@ -62,20 +62,20 @@ class UserMapperTest {
                 .id(1L)
                 .email("Update@name.ru").build();
 
-        User actualUser = mapper.updateUserFromDto(userDto, user);
+        mapper.updateUserFromDto(userDto, user);
 
-        assertEquals("Update@name.ru", actualUser.getEmail());
-        assertEquals("Name", actualUser.getName());
+        assertEquals("Update@name.ru", user.getEmail());
+        assertEquals("Name", user.getName());
     }
 
     @Test
     void updateUserFromDto_whenUserDtoIsNull_thenUserNotUpdate() {
         UserDto userDto = UserDto.builder().build();
 
-        User actualUser = mapper.updateUserFromDto(userDto, user);
+        mapper.updateUserFromDto(userDto, user);
 
-        assertEquals(1L, actualUser.getId());
-        assertEquals("name@name.ru", actualUser.getEmail());
-        assertEquals("Name", actualUser.getName());
+        assertEquals(1L, user.getId());
+        assertEquals("name@name.ru", user.getEmail());
+        assertEquals("Name", user.getName());
     }
 }

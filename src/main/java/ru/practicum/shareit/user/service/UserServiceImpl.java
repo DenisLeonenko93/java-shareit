@@ -52,7 +52,7 @@ public class UserServiceImpl implements UserService {
     public UserDto update(Long userId, UserDto userDto) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException(User.class, String.format("ID: %s", userId)));
-        User updatedUser = userMapper.updateUserFromDto(userDto, user);
-        return userMapper.userToDto(userRepository.saveAndFlush(updatedUser));
+        userMapper.updateUserFromDto(userDto, user);
+        return userMapper.userToDto(userRepository.saveAndFlush(user));
     }
 }

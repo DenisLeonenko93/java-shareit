@@ -86,10 +86,6 @@ public class BookingServiceImpl implements BookingService {
             throw new UnsupportedStatusException(bookingState);
         }
 
-        if (from < 0 || size < 0) {
-            throw new ValidationException("Параметры запроса указаны некорректно, не могуть быть отрицательными.");
-        }
-
         Pageable page = PageRequest.of(from > 0 ? from / size : 0, size);
 
         if (hasOwner) {

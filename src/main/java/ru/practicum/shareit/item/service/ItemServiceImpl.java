@@ -54,16 +54,18 @@ public class ItemServiceImpl implements ItemService {
                     .orElseThrow(() -> new EntityNotFoundException(ItemRequest.class, String.format("ID: %s", itemDto.getRequestId())));
             item.setRequest(request);
         }
-
         item.setOwner(user);
+
         return itemMapper.itemToDto(itemRepository.save(item));
     }
 
     @Override
     public ItemDto update(Long userId, Long itemId, ItemDto itemDto) {
         Item item = isExist(itemId);
+
         checkItemOwner(userId, item);
         itemMapper.updateItemFromDto(itemDto, item);
+
         return itemMapper.itemToDto(itemRepository.save(item));
     }
 
@@ -129,10 +131,6 @@ public class ItemServiceImpl implements ItemService {
     public List<ItemDto> search(Long userId, String text, Integer from, Integer size) {
         if (text == null || text.isEmpty()) {
             return Collections.emptyList();
-        }
-
-        if (from < 0 || size < 0) {
-            throw new ValidationException("Параметры запроса указаны некорректно, не могуть быть отрицательными.");
         }
 
         Pageable page = PageRequest.of(from > 0 ? from / size : 0, size);

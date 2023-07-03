@@ -8,6 +8,7 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.itemRequest.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class ItemMapperTest {

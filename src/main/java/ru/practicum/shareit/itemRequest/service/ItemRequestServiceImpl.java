@@ -5,7 +5,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.EntityNotFoundException;
-import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.itemRequest.dto.ItemRequestDto;
 import ru.practicum.shareit.itemRequest.mapper.ItemRequestMapper;
 import ru.practicum.shareit.itemRequest.model.ItemRequest;
@@ -56,10 +55,6 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     @Override
     @LogExecution(withArgs = true)
     public List<ItemRequestDto> getAllRequests(Long userId, Integer from, Integer size) {
-        if (from < 0 || size < 0) {
-            throw new ValidationException("Параметры запроса указаны некорректно, не могуть быть отрицательными.");
-        }
-
         Pageable page = PageRequest.of(from > 0 ? from / size : 0, size);
 
         return itemRequestRepository.findByRequestorIdNotOrderByCreatedAsc(userId, page)
