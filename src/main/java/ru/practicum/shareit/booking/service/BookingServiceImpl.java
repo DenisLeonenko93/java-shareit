@@ -73,11 +73,11 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingResponseDto> findAllBookingsByState(Long userId,
-                                                           String bookingState,
-                                                           Integer from,
-                                                           Integer size,
-                                                           Boolean hasOwner) {
+    public List<BookingResponseDto> getAllBookingsByState(Long userId,
+                                                          String bookingState,
+                                                          Integer from,
+                                                          Integer size,
+                                                          Boolean hasOwner) {
         List<Booking> bookings;
         BookingState state;
         try {

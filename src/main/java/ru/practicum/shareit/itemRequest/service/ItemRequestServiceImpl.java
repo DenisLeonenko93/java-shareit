@@ -1,4 +1,4 @@
-package ru.practicum.shareit.request.service;
+package ru.practicum.shareit.itemRequest.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -6,10 +6,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.EntityNotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
-import ru.practicum.shareit.request.dto.ItemRequestDto;
-import ru.practicum.shareit.request.mapper.ItemRequestMapper;
-import ru.practicum.shareit.request.model.ItemRequest;
-import ru.practicum.shareit.request.repository.ItemRequestRepository;
+import ru.practicum.shareit.itemRequest.dto.ItemRequestDto;
+import ru.practicum.shareit.itemRequest.mapper.ItemRequestMapper;
+import ru.practicum.shareit.itemRequest.model.ItemRequest;
+import ru.practicum.shareit.itemRequest.repository.ItemRequestRepository;
 import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;

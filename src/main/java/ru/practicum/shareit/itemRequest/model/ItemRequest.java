@@ -1,4 +1,4 @@
-package ru.practicum.shareit.request.model;
+package ru.practicum.shareit.itemRequest.model;
 
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;

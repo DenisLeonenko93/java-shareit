@@ -1,11 +1,11 @@
-package ru.practicum.shareit.request.mapper;
+package ru.practicum.shareit.itemRequest.mapper;
 
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.request.dto.ItemRequestDto;
-import ru.practicum.shareit.request.model.ItemRequest;
+import ru.practicum.shareit.itemRequest.dto.ItemRequestDto;
+import ru.practicum.shareit.itemRequest.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.Instant;

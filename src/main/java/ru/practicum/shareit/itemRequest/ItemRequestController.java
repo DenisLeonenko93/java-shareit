@@ -1,10 +1,10 @@
-package ru.practicum.shareit.request;
+package ru.practicum.shareit.itemRequest;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.request.dto.ItemRequestDto;
-import ru.practicum.shareit.request.service.ItemRequestService;
+import ru.practicum.shareit.itemRequest.dto.ItemRequestDto;
+import ru.practicum.shareit.itemRequest.service.ItemRequestService;
 import ru.practicum.shareit.util.ExistValid;
 import ru.practicum.shareit.util.LogExecution;
 import ru.practicum.shareit.util.ModelType;
@@ -14,9 +14,6 @@ import java.util.List;
 
 import static org.springframework.http.HttpStatus.CREATED;
 
-/**
- * TODO Sprint add-item-requests.
- */
 @RestController
 @RequestMapping(path = "/requests")
 @RequiredArgsConstructor

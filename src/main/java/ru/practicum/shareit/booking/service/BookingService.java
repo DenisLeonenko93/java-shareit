@@ -11,11 +11,11 @@ public interface BookingService {
 
     BookingResponseDto bookingConfirmation(Long userId, Long bookingId, Boolean approved);
 
-    List<BookingResponseDto> findAllBookingsByState(Long userId,
-                                                    String state,
-                                                    Integer from,
-                                                    Integer size,
-                                                    Boolean hasOwner);
+    List<BookingResponseDto> getAllBookingsByState(Long userId,
+                                                   String state,
+                                                   Integer from,
+                                                   Integer size,
+                                                   Boolean hasOwner);
 
     BookingResponseDto getBookingById(Long userId, Long bookingId);
 }
