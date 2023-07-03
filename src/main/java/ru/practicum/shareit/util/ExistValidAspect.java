@@ -2,7 +2,6 @@ package ru.practicum.shareit.util;
 
 import lombok.RequiredArgsConstructor;
 import org.aspectj.lang.JoinPoint;
-import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
@@ -28,14 +27,14 @@ import java.lang.reflect.Method;
 @Component
 @RequiredArgsConstructor
 public class ExistValidAspect {
-    @Pointcut("@annotation(ru.practicum.shareit.util.ExistValid)")
-    public void pointcut() {
-    }
-
     private final UserRepository userRepository;
     private final ItemRepository itemRepository;
     private final BookingRepository bookingRepository;
     private final ItemRequestRepository itemRequestRepository;
+
+    @Pointcut("@annotation(ru.practicum.shareit.util.ExistValid)")
+    public void pointcut() {
+    }
 
     @Before("pointcut()")
     public void isExist(JoinPoint joinPoint) {

@@ -19,10 +19,10 @@ public interface BookingMapper {
 
     BookingResponseDto bookingToResponseDto(Booking booking);
 
+    @Mapping(target = "bookerId", source = "booking.booker.id")
+    BookingDtoForItemResponseDto bookingForItemResponseDto(Booking booking);
+
     UserForBookingResponseDto userToDtoForBookingResponseDto(User user);
 
     ItemForBookingResponseDto itemToDtoForBookingResponseDto(Item item);
-
-    @Mapping(target = "bookerId", source = "booking.booker.id")
-    BookingDtoForItemResponseDto bookingForItemResponseDto(Booking booking);
 }

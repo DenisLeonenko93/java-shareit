@@ -1,16 +1,14 @@
 package ru.practicum.shareit.user.service;
 
 import lombok.RequiredArgsConstructor;
-import org.aspectj.lang.annotation.AfterReturning;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.EntityNotFoundException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
-import ru.practicum.shareit.util.ExistValid;
-import ru.practicum.shareit.util.ModelType;
 
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -36,6 +34,7 @@ public class UserServiceImpl implements UserService {
         return userMapper.userToDto(user);
     }
 
+    @Transactional
     @Override
     public UserDto create(UserDto userDto) {
         User user = userMapper.userFromDto(userDto);
@@ -48,11 +47,12 @@ public class UserServiceImpl implements UserService {
         userRepository.deleteById(userId);
     }
 
+    @Transactional
     @Override
     public UserDto update(Long userId, UserDto userDto) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException(User.class, String.format("ID: %s", userId)));
-        userMapper.updateUserFromDto(userDto, user);
-        return userMapper.userToDto(userRepository.saveAndFlush(user));
+        User updatedUser = userMapper.updateUserFromDto(userDto, user);
+        return userMapper.userToDto(userRepository.saveAndFlush(updatedUser));
     }
 }

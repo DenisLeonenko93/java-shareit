@@ -15,5 +15,6 @@ public interface ItemMapper {
     ItemBooked itemToItemBooked(Item item);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "id", ignore = true)
     void updateItemFromDto(ItemDto itemDto, @MappingTarget Item item);
 }
