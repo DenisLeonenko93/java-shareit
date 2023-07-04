@@ -1,5 +1,6 @@
 package ru.practicum.shareit.itemRequest;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -23,10 +24,17 @@ class ItemRequestControllerTest {
     @InjectMocks
     private ItemRequestController itemRequestController;
 
+    private Long userId;
+    private ItemRequestDto itemRequestDto;
+
+    @BeforeEach
+    void beforeEach() {
+        userId = 0L;
+        itemRequestDto = ItemRequestDto.builder().build();
+    }
+
     @Test
     void create_whenInvoke_thenReturnStatusCreateWithItemRequestDtoInBody() {
-        Long userId = 0L;
-        ItemRequestDto itemRequestDto = ItemRequestDto.builder().build();
         ItemRequestDto expectedDto = ItemRequestDto.builder().id(0L).build();
         when(itemRequestService.create(userId, itemRequestDto)).thenReturn(expectedDto);
 
@@ -38,8 +46,7 @@ class ItemRequestControllerTest {
 
     @Test
     void getAllRequestsByUser_whenInvoke_thenReturnStatusOKWithListItemRequestDtoInBody() {
-        Long userId = 0L;
-        List<ItemRequestDto> expectedItemRequests = List.of(ItemRequestDto.builder().build());
+        List<ItemRequestDto> expectedItemRequests = List.of(itemRequestDto);
         when(itemRequestService.getAllRequestByUser(anyLong())).thenReturn(expectedItemRequests);
 
         ResponseEntity<List<ItemRequestDto>> response = itemRequestController.getAllRequestsByUser(userId);
@@ -51,23 +58,20 @@ class ItemRequestControllerTest {
 
     @Test
     void getRequestById_whenInvoke_thenReturnStatusOKWithItemRequestDtoInBody() {
-        Long userId = 0L;
         Long requestId = 0L;
-        ItemRequestDto expectedItemRequests = ItemRequestDto.builder().build();
-        when(itemRequestService.getRequestById(anyLong(), anyLong())).thenReturn(expectedItemRequests);
+        when(itemRequestService.getRequestById(anyLong(), anyLong())).thenReturn(itemRequestDto);
 
         ResponseEntity<ItemRequestDto> response = itemRequestController.getRequestById(userId, requestId);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(expectedItemRequests, response.getBody());
+        assertEquals(itemRequestDto, response.getBody());
     }
 
     @Test
     void getAllRequests_whenInvoke_thenReturnStatusOKWithListItemRequestDtoInBody() {
-        Long userId = 0L;
         Integer from = 1;
         Integer size = 5;
-        List<ItemRequestDto> expectedItemRequests = List.of(ItemRequestDto.builder().build());
+        List<ItemRequestDto> expectedItemRequests = List.of(itemRequestDto);
         when(itemRequestService.getAllRequests(anyLong(), anyInt(), anyInt())).thenReturn(expectedItemRequests);
 
         ResponseEntity<List<ItemRequestDto>> response = itemRequestController.getAllRequests(userId, from, size);

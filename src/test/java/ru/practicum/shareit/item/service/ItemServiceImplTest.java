@@ -1,5 +1,6 @@
 package ru.practicum.shareit.item.service;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
@@ -60,22 +61,34 @@ class ItemServiceImplTest {
     private CommentMapper commentMapper;
     @InjectMocks
     private ItemServiceImpl itemService;
-
     @Captor
     private ArgumentCaptor<Item> argumentCaptorItem;
     @Captor
     private ArgumentCaptor<Comment> argumentCaptorComment;
 
+
+    private Long itemId;
+    private Long userId;
+    private UserDto userDto;
+    private User user;
+    private ItemDto itemDto;
+    private Item item;
+
+    @BeforeEach
+    void beforeEach() {
+        itemId = 0L;
+        userId = 0L;
+        userDto = UserDto.builder().build();
+        user = User.builder().id(0L).build();
+        itemDto = ItemDto.builder().requestId(0L).build();
+        item = Item.builder().build();
+    }
+
     @Test
     void create_withUserAndRequestExist_thenReturnItemDto() {
-        Long userId = 0L;
-        UserDto userDto = UserDto.builder().build();
-        User user = User.builder().id(0L).build();
         when(userService.findById(userId)).thenReturn(userDto);
         when(userMapper.userFromDto(userDto)).thenReturn(user);
 
-        ItemDto itemDto = ItemDto.builder().requestId(0L).build();
-        Item item = Item.builder().build();
         Item itemSaved = Item.builder().build();
         ItemDto savedItemDto = ItemDto.builder().id(0L).name("saved").build();
         when(itemMapper.itemFromDto(itemDto)).thenReturn(item);
@@ -102,8 +115,6 @@ class ItemServiceImplTest {
 
     @Test
     void create_withUserNotExist_thenEntityNotFoundExceptionThrow() {
-        Long userId = 0L;
-        ItemDto itemDto = ItemDto.builder().requestId(0L).build();
         doThrow(EntityNotFoundException.class).when(userService).findById(userId);
 
         assertThrows(EntityNotFoundException.class,
@@ -113,8 +124,6 @@ class ItemServiceImplTest {
 
     @Test
     void create_withUserExistRequestNotExist_thenEntityNotFoundExceptionThrow() {
-        Long userId = 0L;
-        ItemDto itemDto = ItemDto.builder().requestId(0L).build();
         when(itemRequestRepository.findById(any())).thenReturn(Optional.empty());
 
         assertThrows(EntityNotFoundException.class,
@@ -124,8 +133,6 @@ class ItemServiceImplTest {
 
     @Test
     void update_whenItemExistAndUserIsOwner_thenUpdateAndReturnItemDto() {
-        Long userId = 0L;
-        Long itemId = 0L;
         ItemDto itemDtoUpdate = ItemDto.builder().name("Updated").build();
         Item itemOld = Item.builder()
                 .id(0L)
@@ -154,23 +161,16 @@ class ItemServiceImplTest {
 
     @Test
     void update_whenItemNotExist_thenEntityNotFoundExceptionThrow() {
-        Long userId = 0L;
-        Long itemId = 0L;
-        ItemDto itemDtoUpdate = ItemDto.builder().name("Updated").build();
-
         when(itemRepository.findById(itemId)).thenReturn(Optional.empty());
 
         assertThrows(EntityNotFoundException.class,
-                () -> itemService.update(userId, itemId, itemDtoUpdate));
+                () -> itemService.update(userId, itemId, itemDto));
 
         verify(itemRepository, never()).save(any(Item.class));
     }
 
     @Test
     void update_whenUserNotOwner_thenDataAccessExceptionThrow() {
-        Long userId = 0L;
-        Long itemId = 0L;
-        ItemDto itemDto = ItemDto.builder().build();
         Item itemOld = Item.builder()
                 .owner(User.builder().id(1L).build())
                 .build();
@@ -185,12 +185,8 @@ class ItemServiceImplTest {
 
     @Test
     void getByItemId_whenInvoke_thenReturnItemBooked() {
-        Long userId = 0L;
-        Long itemId = 0L;
         User user = User.builder().id(0L).build();
-        Item item = Item.builder()
-                .owner(user)
-                .build();
+        item.setOwner(user);
         ItemBooked itemBooked = ItemBooked.builder().build();
         BookingDtoForItemResponseDto booking = BookingDtoForItemResponseDto.builder().id(1L).build();
         List<Comment> comments = List.of(Comment.builder().build());
@@ -211,8 +207,6 @@ class ItemServiceImplTest {
 
     @Test
     void getByItemId_whenItemNotFound_thenEntityNotFoundExceptionThrow() {
-        Long userId = 0L;
-        Long itemId = 0L;
         when(itemRepository.findById(itemId)).thenReturn(Optional.empty());
 
         assertThrows(EntityNotFoundException.class,
@@ -221,12 +215,8 @@ class ItemServiceImplTest {
 
     @Test
     void getByItemId_whenUserNotOwner_thenReturnItemBookedWithNullBookings() {
-        Long userId = 0L;
-        Long itemId = 0L;
         User user = User.builder().id(1L).build();
-        Item item = Item.builder()
-                .owner(user)
-                .build();
+        item.setOwner(user);
         ItemBooked itemBooked = ItemBooked.builder().build();
         List<Comment> comments = List.of(Comment.builder().build());
         when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
@@ -245,12 +235,8 @@ class ItemServiceImplTest {
 
     @Test
     void getByItemId_whenCommentsNotFound_thenReturnItemBookedWithEmptyListComments() {
-        Long userId = 0L;
-        Long itemId = 0L;
         User user = User.builder().id(0L).build();
-        Item item = Item.builder()
-                .owner(user)
-                .build();
+        item.setOwner(user);
         ItemBooked itemBooked = ItemBooked.builder().build();
         BookingDtoForItemResponseDto booking = BookingDtoForItemResponseDto.builder().id(1L).build();
         List<Comment> comments = Collections.emptyList();
@@ -270,11 +256,9 @@ class ItemServiceImplTest {
 
     @Test
     void getAllItemsDyUserId_whenInvoke_thenReturnListItemBooked() {
-        Long userId = 0L;
-        Integer from = 1;
-        Integer size = 1;
-        Pageable page = PageRequest.of(from > 0 ? from / size : 0, size);
-        Item item = Item.builder().build();
+        int from = 1;
+        int size = 1;
+        Pageable page = PageRequest.of(from, size);
         List<Item> items = List.of(item);
         ItemBooked itemBooked = ItemBooked.builder().build();
         BookingDtoForItemResponseDto booking = BookingDtoForItemResponseDto.builder().id(1L).build();
@@ -300,10 +284,9 @@ class ItemServiceImplTest {
 
     @Test
     void getAllItemsDyUserId_whenItemNotFound_thenReturnEmptyListItemBooked() {
-        Long userId = 0L;
         Integer from = 1;
         Integer size = 1;
-        Pageable page = PageRequest.of(from > 0 ? from / size : 0, size);
+        Pageable page = PageRequest.of(from / size, size);
         when(itemRepository.findAllByUserId(userId, page)).thenReturn(Collections.emptyList());
 
         List<ItemBooked> actualItems = itemService.getAllItemsDyUserId(userId, from, size);
@@ -314,11 +297,8 @@ class ItemServiceImplTest {
 
     @Test
     void delete_withItemExistAndUserIsOwner_thenInvokeItemRepositoryDeleteMethod() {
-        Long userId = 0L;
-        Long itemId = 0L;
-        Item item = Item.builder()
-                .owner(User.builder().id(0L).build())
-                .build();
+        User owner = User.builder().id(0L).build();
+        item.setOwner(owner);
         when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
 
         itemService.delete(userId, itemId);
@@ -328,8 +308,6 @@ class ItemServiceImplTest {
 
     @Test
     void delete_withItemNotExist_thenEntityNotFoundExceptionThrow() {
-        Long userId = 0L;
-        Long itemId = 0L;
         when(itemRepository.findById(itemId)).thenReturn(Optional.empty());
 
         assertThrows(EntityNotFoundException.class,
@@ -340,11 +318,8 @@ class ItemServiceImplTest {
 
     @Test
     void delete_withItemExistAndUserNotOwner_thenDataAccessExceptionThrow() {
-        Long userId = 0L;
-        Long itemId = 0L;
-        Item item = Item.builder()
-                .owner(User.builder().id(1L).build())
-                .build();
+        User owner = User.builder().id(1L).build();
+        item.setOwner(owner);
         when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
 
         assertThrows(DataAccessException.class,
@@ -355,14 +330,11 @@ class ItemServiceImplTest {
 
     @Test
     void search_whenInvoke_thenReturnCollectionItemDto() {
-        Long userId = 0L;
         String text = "any";
         Integer from = 1;
         Integer size = 1;
-        Item item = Item.builder().build();
         List<Item> items = List.of(item);
-        ItemDto itemDto = ItemDto.builder().build();
-        Pageable page = PageRequest.of(from > 0 ? from / size : 0, size);
+        Pageable page = PageRequest.of(from / size, size);
         when(itemRepository.search(text, page)).thenReturn(items);
         when(itemMapper.itemToDto(item)).thenReturn(itemDto);
 
@@ -374,7 +346,6 @@ class ItemServiceImplTest {
 
     @Test
     void search_withEmptyText_thenReturnCollectionItemDto() {
-        Long userId = 0L;
         String text = "";
         Integer from = 1;
         Integer size = 1;
@@ -386,11 +357,10 @@ class ItemServiceImplTest {
 
     @Test
     void search_whenNotFoundItems_thenEntityNotFoundExceptionThrows() {
-        Long userId = 0L;
         String text = "any";
         Integer from = 1;
         Integer size = 1;
-        Pageable page = PageRequest.of(from > 0 ? from / size : 0, size);
+        Pageable page = PageRequest.of(from / size, size);
         when(itemRepository.search(text, page)).thenReturn(Collections.emptyList());
 
         assertThrows(EntityNotFoundException.class,
@@ -399,12 +369,9 @@ class ItemServiceImplTest {
 
     @Test
     void createComment_withValidParams_thenReturnCommentDto() {
-        Long userId = 0L;
-        Long itemId = 0L;
         CommentDto commentDto = CommentDto.builder().text("Comment").build();
         UserDto userDto = UserDto.builder().build();
         User user = User.builder().build();
-        Item item = Item.builder().build();
         Comment comment = Comment.builder().id(0L).build();
         Comment savedComment = Comment.builder().build();
         CommentDto savedDto = CommentDto.builder().text("saved").build();
@@ -433,8 +400,6 @@ class ItemServiceImplTest {
 
     @Test
     void createComment_withUserNotExist_thenEntityNotFoundExceptionThrow() {
-        Long userId = 0L;
-        Long itemId = 0L;
         CommentDto commentDto = CommentDto.builder().text("Comment").build();
         when(userService.findById(userId)).thenThrow(EntityNotFoundException.class);
 
@@ -446,8 +411,6 @@ class ItemServiceImplTest {
 
     @Test
     void createComment_whenItemNotExist_thenEntityNotFoundExceptionThrow() {
-        Long userId = 0L;
-        Long itemId = 0L;
         CommentDto commentDto = CommentDto.builder().text("Comment").build();
         when(itemRepository.findById(itemId)).thenReturn(Optional.empty());
 
@@ -459,12 +422,9 @@ class ItemServiceImplTest {
 
     @Test
     void createComment_whenUserNotBookingItem_thenValidationException() {
-        Long userId = 0L;
-        Long itemId = 0L;
         CommentDto commentDto = CommentDto.builder().text("Comment").build();
         UserDto userDto = UserDto.builder().build();
         User user = User.builder().build();
-        Item item = Item.builder().build();
         when(userService.findById(userId)).thenReturn(userDto);
         when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
         when(userMapper.userFromDto(userDto)).thenReturn(user);

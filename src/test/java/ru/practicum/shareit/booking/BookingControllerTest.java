@@ -1,5 +1,6 @@
 package ru.practicum.shareit.booking;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -25,11 +26,18 @@ class BookingControllerTest {
     @InjectMocks
     private BookingController bookingController;
 
+    private Long userId;
+    private BookingResponseDto expectedDto;
+
+    @BeforeEach
+    void beforeEach() {
+        userId = 0L;
+        expectedDto = BookingResponseDto.builder().build();
+    }
+
     @Test
     void create_whenInvoked_thenResponseStatusCreateWithBookingResponseDtoInBody() {
-        Long userId = 0L;
         BookingRequestDto requestDto = BookingRequestDto.builder().build();
-        BookingResponseDto expectedDto = BookingResponseDto.builder().build();
         when(bookingService.create(anyLong(), any())).thenReturn(expectedDto);
 
         ResponseEntity<BookingResponseDto> response = bookingController.create(userId, requestDto);
@@ -40,9 +48,7 @@ class BookingControllerTest {
 
     @Test
     void bookingConfirmation_whenInvoked_thenResponseStatusOkWithBookingResponseDtoInBody() {
-        Long userId = 0L;
         Long bookingId = 0L;
-        BookingResponseDto expectedDto = BookingResponseDto.builder().build();
         when(bookingService.bookingConfirmation(anyLong(), anyLong(), anyBoolean())).thenReturn(expectedDto);
 
         ResponseEntity<BookingResponseDto> response = bookingController.bookingConfirmation(userId, bookingId, true);
@@ -53,9 +59,7 @@ class BookingControllerTest {
 
     @Test
     void getBookingById_whenInvoked_thenResponseStatusOkWithBookingResponseDtoInBody() {
-        Long userId = 0L;
         Long bookingId = 0L;
-        BookingResponseDto expectedDto = BookingResponseDto.builder().build();
         when(bookingService.getBookingById(anyLong(), anyLong())).thenReturn(expectedDto);
 
         ResponseEntity<BookingResponseDto> response = bookingController.getBookingById(userId, bookingId);
@@ -66,11 +70,9 @@ class BookingControllerTest {
 
     @Test
     void getAllBookings_whenInvoked_thenResponseStatusOkWithListBookingResponseDtoInBody() {
-        Long userId = 0L;
         String state = "All";
         Integer from = 1;
         Integer size = 5;
-        BookingResponseDto expectedDto = BookingResponseDto.builder().build();
         List<BookingResponseDto> expectedCollection = List.of(expectedDto);
         when(bookingService.getAllBookingsByState(userId, state, from, size, false)) //значение false указано для параметра hasOwner. Два метода имеют схожий функционал, отличаются наличием хозяина вещи.
                 .thenReturn(expectedCollection);
@@ -85,11 +87,9 @@ class BookingControllerTest {
 
     @Test
     void getAllBookingsByItemOwner_whenInvoked_thenResponseStatusOkWithListBookingResponseDtoInBody() {
-        Long userId = 0L;
         String state = "All";
         Integer from = 1;
         Integer size = 5;
-        BookingResponseDto expectedDto = BookingResponseDto.builder().build();
         List<BookingResponseDto> expectedCollection = List.of(expectedDto);
         when(bookingService.getAllBookingsByState(userId, state, from, size, true)) //значение false указано для параметра hasOwner. Два метода имеют схожий функционал, отличаются наличием хозяина вещи.
                 .thenReturn(expectedCollection);

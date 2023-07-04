@@ -1,5 +1,6 @@
 package ru.practicum.shareit.item;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -26,11 +27,22 @@ class ItemControllerTest {
     @InjectMocks
     private ItemController itemController;
 
+    private Long userId;
+    private Long itemId;
+
+    private ItemDto requestDto;
+    private ItemDto expectedItem;
+
+    @BeforeEach
+    void beforeEach() {
+        userId = 0L;
+        itemId = 0L;
+        requestDto = ItemDto.builder().build();
+        expectedItem = ItemDto.builder().id(0L).build();
+    }
+
     @Test
     void create_whenInvoked_thenResponseStatusCreateWithItemDtoInBody() {
-        Long userId = 0L;
-        ItemDto requestDto = ItemDto.builder().build();
-        ItemDto expectedItem = ItemDto.builder().id(0L).build();
         when(itemService.create(userId, requestDto)).thenReturn(expectedItem);
 
         ResponseEntity<ItemDto> response = itemController.create(userId, requestDto);
@@ -41,10 +53,6 @@ class ItemControllerTest {
 
     @Test
     void update_whenInvoked_thenResponseStatusOKWithItemDtoInBody() {
-        Long userId = 0L;
-        Long itemId = 0L;
-        ItemDto requestDto = ItemDto.builder().build();
-        ItemDto expectedItem = ItemDto.builder().id(0L).build();
         when(itemService.update(userId, itemId, requestDto)).thenReturn(expectedItem);
 
         ResponseEntity<ItemDto> response = itemController.update(userId, itemId, requestDto);
@@ -55,8 +63,6 @@ class ItemControllerTest {
 
     @Test
     void getByItemId_whenInvoked_thenResponseStatusOkWithItemBookedInBody() {
-        Long userId = 0L;
-        Long itemId = 0L;
         ItemBooked expectedItem = ItemBooked.builder().build();
         when(itemService.getByItemId(userId, itemId)).thenReturn(expectedItem);
 
@@ -68,7 +74,6 @@ class ItemControllerTest {
 
     @Test
     void getAllItemsByUserId_whenInvoked_thenResponseStatusOkWithListItemBookedInBody() {
-        Long userId = 0L;
         Integer from = 1;
         Integer size = 1;
         ItemBooked expectedItem = ItemBooked.builder().build();
@@ -84,9 +89,6 @@ class ItemControllerTest {
 
     @Test
     void delete_whenInvoked_thenResponseStatusNoContentWithEmptyBodyMustInvokeItemServiceDeleteMethod() {
-        Long userId = 0L;
-        Long itemId = 0L;
-
         ResponseEntity<Void> response = itemController.delete(userId, itemId);
 
         assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
@@ -95,11 +97,9 @@ class ItemControllerTest {
 
     @Test
     void search_whenInvoked_thenResponseStatusOkWithListItemBookedInBody() {
-        Long userId = 0L;
         Integer from = 1;
         Integer size = 1;
         String text = " ";
-        ItemDto expectedItem = ItemDto.builder().build();
         List<ItemDto> expectedCollection = List.of(expectedItem);
         when(itemService.search(userId, text, from, size)).thenReturn(expectedCollection);
 
@@ -112,8 +112,6 @@ class ItemControllerTest {
 
     @Test
     void createComment_whenInvoked_thenResponseStatusCreatedWithCommentDtoInBody() {
-        Long userId = 0L;
-        Long itemId = 0L;
         CommentDto requestComment = CommentDto.builder().build();
         CommentDto expectedComment = CommentDto.builder().id(0L).build();
         when(itemService.createComment(userId, itemId, requestComment)).thenReturn(expectedComment);

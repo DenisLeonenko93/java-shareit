@@ -1,5 +1,6 @@
 package ru.practicum.shareit.user;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -25,6 +26,15 @@ class UserControllerTest {
     @InjectMocks
     private UserController userController;
 
+    private UserDto savedUser;
+    private UserDto expectedUser;
+
+    @BeforeEach
+    void beforeEach() {
+        savedUser = UserDto.builder().build();
+        expectedUser = UserDto.builder().id(0L).build();
+    }
+
     @Test
     void getAllUsers_whenInvoked_thenResponseStatusOKWithUserDtoCollectionsInBody() {
         List<UserDto> expectedUsers = List.of(new UserDto());
@@ -41,7 +51,6 @@ class UserControllerTest {
 
     @Test
     void getById_whenInvoked_thenResponseStatusOKWithUserDtoInBody() {
-        UserDto expectedUser = UserDto.builder().build();
         when(userService.findById(Mockito.anyLong()))
                 .thenReturn(expectedUser);
 
@@ -53,8 +62,6 @@ class UserControllerTest {
 
     @Test
     void create_whenInvoked_thenResponseStatusCreateWithUserDtoInBody() {
-        UserDto savedUser = UserDto.builder().build();
-        UserDto expectedUser = UserDto.builder().id(0L).build();
         when(userService.create(savedUser)).thenReturn(expectedUser);
 
         ResponseEntity<UserDto> response = userController.create(savedUser);
@@ -73,8 +80,6 @@ class UserControllerTest {
 
     @Test
     void update_whenInvoked_thenResponseStatusOKWithUserDtoInBody() {
-        UserDto savedUser = UserDto.builder().build();
-        UserDto expectedUser = UserDto.builder().id(0L).build();
         when(userService.update(0L, savedUser)).thenReturn(expectedUser);
 
         ResponseEntity<UserDto> response = userController.update(0L, savedUser);

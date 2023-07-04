@@ -1,5 +1,6 @@
 package ru.practicum.shareit.user.service;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -38,13 +39,28 @@ class UserServiceImplTest {
     @Captor
     private ArgumentCaptor<User> userArgumentCaptor;
 
+    private Long userId;
+    private User user;
+    private UserDto userDto;
+
+    @BeforeEach
+    void beforeEach() {
+        userId = 0L;
+        user = User.builder()
+                .id(1L)
+                .name("Name")
+                .email("test@mail.ru").build();
+        userDto = UserDto.builder()
+                .id(1L)
+                .name("Name")
+                .email("test@mail.ru").build();
+    }
+
     @Test
     void getAll_whenInvoked_thenReturnUserDtoCollections() {
         Integer from = 1;
         Integer size = 1;
         Pageable page = PageRequest.of(from > 0 ? from / size : 0, size);
-        User user = new User();
-        UserDto userDto = new UserDto();
         List<User> usersFromRepository = List.of(user);
         List<UserDto> expectedUsersDto = List.of(userDto);
         when(userRepository.findAll(page)).thenReturn(new PageImpl<>(usersFromRepository));
@@ -57,12 +73,10 @@ class UserServiceImplTest {
 
     @Test
     void findById_whenUserFound_thenReturnedUserDto() {
-        long userId = 0L;
-        User expectedUser = new User();
         when(userRepository.findById(userId))
-                .thenReturn(Optional.of(expectedUser));
+                .thenReturn(Optional.of(user));
         UserDto expectedUserDto = new UserDto();
-        when(userMapper.userToDto(expectedUser))
+        when(userMapper.userToDto(user))
                 .thenReturn(expectedUserDto);
 
         UserDto actualUser = userService.findById(userId);
@@ -72,7 +86,6 @@ class UserServiceImplTest {
 
     @Test
     void findById_whenUserNotFound_thenEntityNotFoundExceptionThrow() {
-        long userId = 0L;
         when(userRepository.findById(userId))
                 .thenReturn(Optional.empty());
 
@@ -84,42 +97,29 @@ class UserServiceImplTest {
 
     @Test
     void create_whenCreateUser_returnUserDto() {
-        User userToSave = User.builder()
-                .id(1L)
-                .name("Name")
-                .email("test@mail.ru").build();
-        UserDto expectedUserDto = UserDto.builder()
-                .id(1L)
-                .name("Name")
-                .email("test@mail.ru").build();
-        when(userMapper.userFromDto(expectedUserDto)).thenReturn(userToSave);
-        when(userRepository.save(userToSave)).thenReturn(userToSave);
-        when(userMapper.userToDto(userToSave))
-                .thenReturn(expectedUserDto);
+        when(userMapper.userFromDto(userDto)).thenReturn(user);
+        when(userRepository.save(user)).thenReturn(user);
+        when(userMapper.userToDto(user))
+                .thenReturn(userDto);
 
-        UserDto actualUserDto = userService.create(expectedUserDto);
+        UserDto actualUserDto = userService.create(userDto);
 
-        assertEquals(expectedUserDto, actualUserDto);
-        verify(userRepository).save(userToSave);
+        assertEquals(userDto, actualUserDto);
+        verify(userRepository).save(user);
     }
 
     @Test
     void delete_whenInvoke_thenInvokeUserRepository() {
-        userService.delete(0L);
+        userService.delete(userId);
 
         verify(userRepository).deleteById(0L);
     }
 
     @Test
     void update_whenUserFound_thenUpdatedOnlyAvailableFields() {
-        Long userId = 0L;
-        User oldUser = User.builder()
-                .id(0L)
-                .name("Name")
-                .email("test@mail.ru").build();
         UserDto newUserDto = UserDto.builder()
                 .name("Update").build();
-        when(userRepository.findById(userId)).thenReturn(Optional.of(oldUser));
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         doAnswer(invocation -> {
             UserDto userDto = invocation.getArgument(0, UserDto.class);
             User user = invocation.getArgument(1, User.class);
@@ -129,32 +129,22 @@ class UserServiceImplTest {
 
         userService.update(userId, newUserDto);
 
-        verify(userMapper).updateUserFromDto(newUserDto, oldUser);
+        verify(userMapper).updateUserFromDto(newUserDto, user);
         verify(userRepository).saveAndFlush(userArgumentCaptor.capture());
 
         User savedUser = userArgumentCaptor.getValue();
 
-        assertEquals(0L, savedUser.getId());
+        assertEquals(1L, savedUser.getId());
         assertEquals("Update", savedUser.getName());
         assertEquals("test@mail.ru", savedUser.getEmail());
     }
 
     @Test
     void update_whenUserNotFound_thenEntityNotFoundExceptionThrow() {
-        Long userId = 0L;
-        User oldUser = User.builder()
-                .id(0L)
-                .name("Name")
-                .email("test@mail.ru").build();
-        User newUser = User.builder()
-                .id(0L)
-                .name("Update")
-                .email("test@mail.ru").build();
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
         assertThrows(EntityNotFoundException.class,
                 () -> userService.findById(userId));
-        verify(userRepository, never()).saveAndFlush(newUser);
-        verify(userRepository, never()).saveAndFlush(oldUser);
+        verify(userRepository, never()).saveAndFlush(any(User.class));
     }
 }

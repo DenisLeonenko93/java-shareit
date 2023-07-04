@@ -1,5 +1,6 @@
 package ru.practicum.shareit.itemRequest.service;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -44,14 +45,23 @@ class ItemRequestServiceImplTest {
     @Captor
     private ArgumentCaptor<ItemRequest> argumentCaptorItemRequest;
 
+    private Long userId;
+    private ItemRequestDto itemRequestDto;
+    private ItemRequest itemRequest;
 
-    @Test
-    void create_whenCreateItemRequestAndUserFound_thenReturnItemRequestDto() {
-        Long userId = 0L;
-        ItemRequestDto itemRequestDto = ItemRequestDto.builder()
+    @BeforeEach
+    void beforeEach() {
+        userId = 0L;
+        itemRequestDto = ItemRequestDto.builder()
                 .id(1L)
                 .description("desc")
                 .created(Instant.MIN).build();
+        itemRequest = ItemRequest.builder().build();
+    }
+
+
+    @Test
+    void create_whenCreateItemRequestAndUserFound_thenReturnItemRequestDto() {
         UserDto userDto = UserDto.builder().build();
         User user = User.builder().build();
         ItemRequest itemRequest = ItemRequest.builder()
@@ -82,11 +92,6 @@ class ItemRequestServiceImplTest {
 
     @Test
     void create_whenCreateItemRequestAndUserNotFound_thenEntityNotFoundExceptionThrow() {
-        Long userId = 0L;
-        ItemRequestDto itemRequestDto = ItemRequestDto.builder()
-                .id(1L)
-                .description("desc")
-                .created(Instant.MIN).build();
         when(userService.findById(userId)).thenThrow(EntityNotFoundException.class);
 
         assertThrows(EntityNotFoundException.class, () -> itemRequestService.create(userId, itemRequestDto));
@@ -95,9 +100,6 @@ class ItemRequestServiceImplTest {
 
     @Test
     void getAllRequestByUser_whenInvoke_thenReturnCollectionItemRequestDto() {
-        Long userId = 0L;
-        ItemRequestDto itemRequestDto = ItemRequestDto.builder().build();
-        ItemRequest itemRequest = ItemRequest.builder().build();
         List<ItemRequest> requests = List.of(itemRequest);
         when(itemRequestRepository.findByRequestorIdOrderByCreatedAsc(userId)).thenReturn(requests);
         when(itemRequestMapper.toDto(itemRequest)).thenReturn(itemRequestDto);
@@ -110,21 +112,17 @@ class ItemRequestServiceImplTest {
 
     @Test
     void getRequestById_whenItemRequestFound_thenReturnItemRequestDto() {
-        Long userId = 0L;
         Long requestId = 0L;
-        ItemRequest itemRequest = ItemRequest.builder().build();
-        ItemRequestDto expectedRequestDto = ItemRequestDto.builder().build();
         when(itemRequestRepository.findById(requestId)).thenReturn(Optional.of(itemRequest));
-        when(itemRequestMapper.toDto(itemRequest)).thenReturn(expectedRequestDto);
+        when(itemRequestMapper.toDto(itemRequest)).thenReturn(itemRequestDto);
 
         ItemRequestDto actualRequestDto = itemRequestService.getRequestById(userId, requestId);
 
-        assertEquals(expectedRequestDto, actualRequestDto);
+        assertEquals(itemRequestDto, actualRequestDto);
     }
 
     @Test
     void getRequestById_whenItemRequestNotFound_thenEntityNotFoundExceptionThrow() {
-        Long userId = 0L;
         Long requestId = 0L;
         when(itemRequestRepository.findById(requestId)).thenThrow(EntityNotFoundException.class);
 
@@ -133,12 +131,9 @@ class ItemRequestServiceImplTest {
 
     @Test
     void getAllRequests_whenInvoke_thenReturnCollectionItemRequestDto() {
-        Long userId = 0L;
         int from = 1;
         int size = 5;
         Pageable page = PageRequest.of(from > 0 ? from / size : 0, size);
-        ItemRequestDto itemRequestDto = ItemRequestDto.builder().build();
-        ItemRequest itemRequest = ItemRequest.builder().build();
         List<ItemRequest> requests = List.of(itemRequest);
         when(itemRequestRepository.findByRequestorIdNotOrderByCreatedAsc(userId, page)).thenReturn(requests);
         when(itemRequestMapper.toDto(itemRequest)).thenReturn(itemRequestDto);
