@@ -28,10 +28,12 @@ class UserControllerTest {
     @Test
     void getAllUsers_whenInvoked_thenResponseStatusOKWithUserDtoCollectionsInBody() {
         List<UserDto> expectedUsers = List.of(new UserDto());
-        when(userService.getAll())
+        Integer from = 1;
+        Integer size = 1;
+        when(userService.getAll(from, size))
                 .thenReturn(expectedUsers);
 
-        ResponseEntity<List<UserDto>> response = userController.getAllUsers();
+        ResponseEntity<List<UserDto>> response = userController.getAllUsers(from, size);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(expectedUsers, response.getBody());

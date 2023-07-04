@@ -1,6 +1,8 @@
 package ru.practicum.shareit.user.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.EntityNotFoundException;
 import ru.practicum.shareit.user.dto.UserDto;
@@ -20,8 +22,10 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
 
     @Override
-    public List<UserDto> getAll() {
-        return userRepository.findAll()
+    public List<UserDto> getAll(Integer from, Integer size) {
+        Pageable page = PageRequest.of(from > 0 ? from / size : 0, size);
+
+        return userRepository.findAll(page)
                 .stream()
                 .map(userMapper::userToDto)
                 .collect(Collectors.toList());

@@ -7,6 +7,9 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import ru.practicum.shareit.exception.EntityNotFoundException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.mapper.UserMapper;
@@ -37,14 +40,17 @@ class UserServiceImplTest {
 
     @Test
     void getAll_whenInvoked_thenReturnUserDtoCollections() {
+        Integer from = 1;
+        Integer size = 1;
+        Pageable page = PageRequest.of(from > 0 ? from / size : 0, size);
         User user = new User();
         UserDto userDto = new UserDto();
         List<User> usersFromRepository = List.of(user);
         List<UserDto> expectedUsersDto = List.of(userDto);
-        when(userRepository.findAll()).thenReturn(usersFromRepository);
+        when(userRepository.findAll(page)).thenReturn(new PageImpl<>(usersFromRepository));
         when(userMapper.userToDto(user)).thenReturn(userDto);
 
-        List<UserDto> actualUsersDto = userService.getAll();
+        List<UserDto> actualUsersDto = userService.getAll(from, size);
 
         assertEquals(expectedUsersDto, actualUsersDto);
     }

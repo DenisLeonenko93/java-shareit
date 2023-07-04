@@ -9,6 +9,7 @@ import ru.practicum.shareit.user.service.UserService;
 import ru.practicum.shareit.util.LogExecution;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import java.util.List;
 
 @RestController
@@ -20,8 +21,9 @@ public class UserController {
 
     @GetMapping
     @LogExecution
-    public ResponseEntity<List<UserDto>> getAllUsers() {
-        return ResponseEntity.ok(userService.getAll());
+    public ResponseEntity<List<UserDto>> getAllUsers(@RequestParam(required = false, defaultValue = "0") @Min(0) Integer from,
+                                                     @RequestParam(required = false, defaultValue = "10") @Min(1) Integer size) {
+        return ResponseEntity.ok(userService.getAll(from, size));
     }
 
     @GetMapping("/{userId}")

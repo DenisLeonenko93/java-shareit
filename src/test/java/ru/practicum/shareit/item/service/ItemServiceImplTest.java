@@ -6,6 +6,7 @@ import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import ru.practicum.shareit.booking.dto.BookingDtoForItemResponseDto;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
@@ -13,6 +14,7 @@ import ru.practicum.shareit.exception.DataAccessException;
 import ru.practicum.shareit.exception.EntityNotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.dto.CommentDto;
+import ru.practicum.shareit.item.dto.ItemBooked;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.mapper.CommentMapper;
 import ru.practicum.shareit.item.mapper.ItemMapper;
@@ -182,11 +184,132 @@ class ItemServiceImplTest {
     }
 
     @Test
-    void getByItemId() {
+    void getByItemId_whenInvoke_thenReturnItemBooked() {
+        Long userId = 0L;
+        Long itemId = 0L;
+        User user = User.builder().id(0L).build();
+        Item item = Item.builder()
+                .owner(user)
+                .build();
+        ItemBooked itemBooked = ItemBooked.builder().build();
+        BookingDtoForItemResponseDto booking = BookingDtoForItemResponseDto.builder().id(1L).build();
+        List<Comment> comments = List.of(Comment.builder().build());
+        when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
+        when(itemMapper.itemToItemBooked(item)).thenReturn(itemBooked);
+        when(bookingMapper.bookingForItemResponseDto(any())).thenReturn(booking);
+        when(commentsRepository.findByItem(any())).thenReturn(comments);
+        when(commentMapper.commentToDto(any())).thenReturn(CommentDto.builder().build());
+
+        ItemBooked actualItemBooked = itemService.getByItemId(userId, itemId);
+
+        assertNotNull(actualItemBooked);
+        assertNotNull(actualItemBooked.getLastBooking());
+        assertNotNull(actualItemBooked.getNextBooking());
+        assertNotNull(actualItemBooked.getComments());
+        assertFalse(actualItemBooked.getComments().isEmpty());
     }
 
     @Test
-    void getAllItemsDyUserId() {
+    void getByItemId_whenItemNotFound_thenEntityNotFoundExceptionThrow() {
+        Long userId = 0L;
+        Long itemId = 0L;
+        when(itemRepository.findById(itemId)).thenReturn(Optional.empty());
+
+        assertThrows(EntityNotFoundException.class,
+                () -> itemService.getByItemId(userId, itemId));
+    }
+
+    @Test
+    void getByItemId_whenUserNotOwner_thenReturnItemBookedWithNullBookings() {
+        Long userId = 0L;
+        Long itemId = 0L;
+        User user = User.builder().id(1L).build();
+        Item item = Item.builder()
+                .owner(user)
+                .build();
+        ItemBooked itemBooked = ItemBooked.builder().build();
+        List<Comment> comments = List.of(Comment.builder().build());
+        when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
+        when(itemMapper.itemToItemBooked(item)).thenReturn(itemBooked);
+        when(commentsRepository.findByItem(any())).thenReturn(comments);
+        when(commentMapper.commentToDto(any())).thenReturn(CommentDto.builder().build());
+
+        ItemBooked actualItemBooked = itemService.getByItemId(userId, itemId);
+
+        assertNotNull(actualItemBooked);
+        assertNull(actualItemBooked.getLastBooking());
+        assertNull(actualItemBooked.getNextBooking());
+        assertNotNull(actualItemBooked.getComments());
+        assertFalse(actualItemBooked.getComments().isEmpty());
+    }
+
+    @Test
+    void getByItemId_whenCommentsNotFound_thenReturnItemBookedWithEmptyListComments() {
+        Long userId = 0L;
+        Long itemId = 0L;
+        User user = User.builder().id(0L).build();
+        Item item = Item.builder()
+                .owner(user)
+                .build();
+        ItemBooked itemBooked = ItemBooked.builder().build();
+        BookingDtoForItemResponseDto booking = BookingDtoForItemResponseDto.builder().id(1L).build();
+        List<Comment> comments = Collections.emptyList();
+        when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
+        when(itemMapper.itemToItemBooked(item)).thenReturn(itemBooked);
+        when(bookingMapper.bookingForItemResponseDto(any())).thenReturn(booking);
+        when(commentsRepository.findByItem(any())).thenReturn(comments);
+
+        ItemBooked actualItemBooked = itemService.getByItemId(userId, itemId);
+
+        assertNotNull(actualItemBooked);
+        assertNotNull(actualItemBooked.getLastBooking());
+        assertNotNull(actualItemBooked.getNextBooking());
+        assertNotNull(actualItemBooked.getComments());
+        assertTrue(actualItemBooked.getComments().isEmpty());
+    }
+
+    @Test
+    void getAllItemsDyUserId_whenInvoke_thenReturnListItemBooked() {
+        Long userId = 0L;
+        Integer from = 1;
+        Integer size = 1;
+        Pageable page = PageRequest.of(from > 0 ? from / size : 0, size);
+        Item item = Item.builder().build();
+        List<Item> items = List.of(item);
+        ItemBooked itemBooked = ItemBooked.builder().build();
+        BookingDtoForItemResponseDto booking = BookingDtoForItemResponseDto.builder().id(1L).build();
+        List<Comment> comments = List.of(Comment.builder().build());
+        when(itemRepository.findAllByUserId(userId, page)).thenReturn(items);
+        when(itemMapper.itemToItemBooked(item)).thenReturn(itemBooked);
+        when(bookingMapper.bookingForItemResponseDto(any())).thenReturn(booking);
+        when(commentsRepository.findByItem(any())).thenReturn(comments);
+        when(commentMapper.commentToDto(any())).thenReturn(CommentDto.builder().build());
+
+        List<ItemBooked> actualItems = itemService.getAllItemsDyUserId(userId, from, size);
+
+        assertNotNull(actualItems);
+        assertFalse(actualItems.isEmpty());
+
+        ItemBooked actualItem = actualItems.get(0);
+
+        assertNotNull(actualItem.getLastBooking());
+        assertNotNull(actualItem.getNextBooking());
+        assertNotNull(actualItem.getComments());
+        assertFalse(actualItem.getComments().isEmpty());
+    }
+
+    @Test
+    void getAllItemsDyUserId_whenItemNotFound_thenReturnEmptyListItemBooked() {
+        Long userId = 0L;
+        Integer from = 1;
+        Integer size = 1;
+        Pageable page = PageRequest.of(from > 0 ? from / size : 0, size);
+        when(itemRepository.findAllByUserId(userId, page)).thenReturn(Collections.emptyList());
+
+        List<ItemBooked> actualItems = itemService.getAllItemsDyUserId(userId, from, size);
+
+        assertNotNull(actualItems);
+        assertTrue(actualItems.isEmpty());
     }
 
     @Test
