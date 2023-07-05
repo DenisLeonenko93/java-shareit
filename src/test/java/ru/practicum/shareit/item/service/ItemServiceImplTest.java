@@ -263,7 +263,7 @@ class ItemServiceImplTest {
         ItemBooked itemBooked = ItemBooked.builder().build();
         BookingDtoForItemResponseDto booking = BookingDtoForItemResponseDto.builder().id(1L).build();
         List<Comment> comments = List.of(Comment.builder().build());
-        when(itemRepository.findAllByUserId(userId, page)).thenReturn(items);
+        when(itemRepository.findAllByOwner_Id(userId, page)).thenReturn(items);
         when(itemMapper.itemToItemBooked(item)).thenReturn(itemBooked);
         when(bookingMapper.bookingForItemResponseDto(any())).thenReturn(booking);
         when(commentsRepository.findByItem(any())).thenReturn(comments);
@@ -287,7 +287,7 @@ class ItemServiceImplTest {
         Integer from = 1;
         Integer size = 1;
         Pageable page = PageRequest.of(from / size, size);
-        when(itemRepository.findAllByUserId(userId, page)).thenReturn(Collections.emptyList());
+        when(itemRepository.findAllByOwner_Id(userId, page)).thenReturn(Collections.emptyList());
 
         List<ItemBooked> actualItems = itemService.getAllItemsDyUserId(userId, from, size);
 

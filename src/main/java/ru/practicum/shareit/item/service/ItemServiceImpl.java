@@ -93,7 +93,7 @@ public class ItemServiceImpl implements ItemService {
     public List<ItemBooked> getAllItemsDyUserId(Long userId, Integer from, Integer size) {
         Pageable page = PageRequest.of(from > 0 ? from / size : 0, size);
 
-        List<ItemBooked> items = itemRepository.findAllByUserId(userId, page)
+        List<ItemBooked> items = itemRepository.findAllByOwner_Id(userId, page)
                 .stream()
                 .map(item -> {
                     ItemBooked itemBooked = itemMapper.itemToItemBooked(item);
