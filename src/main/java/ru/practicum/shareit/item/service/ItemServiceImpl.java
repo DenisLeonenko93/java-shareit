@@ -61,7 +61,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDto update(Long userId, Long itemId, ItemDto itemDto) {
-        Item item = isExist(itemId);
+        Item item = getOrThrow(itemId);
 
         checkItemOwner(userId, item);
         itemMapper.updateItemFromDto(itemDto, item);
@@ -71,7 +71,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemBooked getByItemId(Long userId, Long itemId) {
-        Item item = isExist(itemId);
+        Item item = getOrThrow(itemId);
         ItemBooked itemBooked = itemMapper.itemToItemBooked(item);
         if (item.getOwner().getId().equals(userId)) {
             itemBooked.setLastBooking(bookingMapper.bookingForItemResponseDto(
@@ -118,7 +118,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public void delete(Long userId, Long itemId) {
-        Item item = isExist(itemId);
+        Item item = getOrThrow(itemId);
         checkItemOwner(userId, item);
         itemRepository.deleteById(itemId);
     }
@@ -143,7 +143,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public CommentDto createComment(Long userId, Long itemId, CommentDto commentDto) {
         User author = userMapper.userFromDto(userService.findById(userId));
-        Item item = isExist(itemId);
+        Item item = getOrThrow(itemId);
         bookingRepository.findFirstByItemIdAndBookerIdAndStatusAndEndBefore(itemId, userId, BookingStatus.APPROVED, LocalDateTime.now())
                 .orElseThrow(() -> (new ValidationException("Пользователь не брал предмет в аренду")));
         Comment comment = commentMapper.commentFromDto(commentDto);
@@ -161,7 +161,7 @@ public class ItemServiceImpl implements ItemService {
         }
     }
 
-    private Item isExist(Long itemId) {
+    private Item getOrThrow(Long itemId) {
         return itemRepository.findById(itemId)
                 .orElseThrow(() -> new EntityNotFoundException(Item.class, String.format("ID: %s", itemId)));
     }

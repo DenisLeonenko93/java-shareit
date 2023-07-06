@@ -68,8 +68,8 @@ class BookingControllerIT {
     void create_whenUserNotFound_thenReturnStatusNotFound() {
         BookingRequestDto bookingRequestDto = BookingRequestDto.builder()
                 .itemId(1L)
-                .start(LocalDateTime.MIN)
-                .end(LocalDateTime.MAX).build();
+                .start(LocalDateTime.now().plusHours(1L))
+                .end(LocalDateTime.now().plusHours(2L)).build();
         when(bookingService.create(userId, bookingRequestDto)).thenThrow(EntityNotFoundException.class);
 
         mockMvc.perform(post("/bookings")
