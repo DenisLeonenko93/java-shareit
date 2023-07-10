@@ -17,6 +17,7 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
+import ru.practicum.shareit.user.service.UserService;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -28,6 +29,7 @@ import static ru.practicum.shareit.booking.model.BookingStatus.APPROVED;
 @RequiredArgsConstructor
 public class BookingServiceImpl implements BookingService {
 
+    private final UserService userService;
     private final BookingRepository bookingRepository;
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
@@ -78,6 +80,7 @@ public class BookingServiceImpl implements BookingService {
                                                           Integer from,
                                                           Integer size,
                                                           Boolean hasOwner) {
+        userService.findById(userId);
         List<Booking> bookings;
         BookingState state;
         try {
@@ -100,6 +103,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public BookingResponseDto getBookingById(Long userId, Long bookingId) {
+        userService.findById(userId);
         Booking booking = bookingRepository.findById(bookingId).orElseThrow(
                 () -> new EntityNotFoundException(Booking.class, String.format("ID: %s", bookingId)));
         if (!booking.getBooker().getId().equals(userId) &&

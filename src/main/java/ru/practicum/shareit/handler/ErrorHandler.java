@@ -33,15 +33,6 @@ public class ErrorHandler {
                 e.getMessage());
     }
 
-    //TODO разобраться с описанием ошибки
-    @ExceptionHandler(org.hibernate.exception.ConstraintViolationException.class)
-    @ResponseStatus(CONFLICT)
-    public ErrorInfo handleDuplicateEntity(org.hibernate.exception.ConstraintViolationException e) {
-        log.warn(e.getMessage());
-        return new ErrorInfo(org.hibernate.exception.ConstraintViolationException.class,
-                e.getMessage());
-    }
-
     @ExceptionHandler(DataAccessException.class)
     @ResponseStatus(FORBIDDEN)
     public ErrorInfo handleUnsupportedStatusException(DataAccessException e) {

@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
+import ru.practicum.shareit.exception.DataAccessException;
 import ru.practicum.shareit.exception.EntityNotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.dto.CommentDto;
@@ -78,6 +80,40 @@ class ItemControllerIT {
 
     @SneakyThrows
     @Test
+    void create_whenNotHeadUserId_thenStatusBadRequest() {
+        ItemDto itemDto = ItemDto.builder()
+                .description("desc")
+                .available(true).build();
+
+        mockMvc.perform(post("/items")
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(itemDto)))
+                .andExpect(status().isBadRequest());
+
+        verify(itemService, never()).create(userId, itemDto);
+    }
+
+    @SneakyThrows
+    @Test
+    void create_whenUserNotFound_thenthenStatusNotFound() {
+        Long wrongUserId = 100L;
+        ItemDto itemDto = ItemDto.builder()
+                .description("desc")
+                .available(true).build();
+
+        ResultActions resultActions = mockMvc.perform(post("/items")
+                .header("X-Sharer-User-Id", wrongUserId.toString())
+                .contentType("application/json")
+                .content(objectMapper.writeValueAsString(itemDto)));
+
+        resultActions.andExpect(status().isBadRequest());
+        String body = resultActions.andReturn().getResponse().getContentAsString();
+
+        verify(itemService, never()).create(wrongUserId, itemDto);
+    }
+
+    @SneakyThrows
+    @Test
     void update_whenInvoke_thenStatusOkItemDtoInBody() {
         Long itemId = 0L;
         ItemDto itemDto = ItemDto.builder()
@@ -105,8 +141,43 @@ class ItemControllerIT {
                 .description("desc")
                 .available(true).build();
         when(itemService.update(userId, itemId, itemDto))
+                .thenThrow(DataAccessException.class);
+
+        mockMvc.perform(patch("/items/{itemId}", itemId.toString())
+                        .header("X-Sharer-User-Id", userId.toString())
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(itemDto)))
+                .andExpect(status().isForbidden());
+    }
+
+    @SneakyThrows
+    @Test
+    void update_whenUserNotOwner_thenStatusNotFound() {
+        Long itemId = 0L;
+        userId = 1L;
+        ItemDto itemDto = ItemDto.builder()
+                .description("desc")
+                .available(true).build();
+        when(itemService.update(userId, itemId, itemDto))
                 .thenThrow(EntityNotFoundException.class);
 
+        mockMvc.perform(patch("/items/{itemId}", itemId.toString())
+                        .header("X-Sharer-User-Id", userId.toString())
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(itemDto)))
+                .andExpect(status().isNotFound());
+    }
+
+    @SneakyThrows
+    @Test
+    void update_whenUserNotFound_thenStatusNotFound() {
+        Long itemId = 0L;
+        userId = 2L;
+        ItemDto itemDto = ItemDto.builder()
+                .description("desc")
+                .available(true).build();
+        when(itemService.update(anyLong(), anyLong(), any()))
+                .thenThrow(EntityNotFoundException.class);
         mockMvc.perform(patch("/items/{itemId}", itemId.toString())
                         .header("X-Sharer-User-Id", userId.toString())
                         .contentType("application/json")

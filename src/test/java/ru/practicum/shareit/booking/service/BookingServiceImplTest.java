@@ -19,8 +19,10 @@ import ru.practicum.shareit.exception.UnsupportedStatusException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
+import ru.practicum.shareit.user.service.UserService;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -38,6 +40,8 @@ class BookingServiceImplTest {
     private ItemRepository itemRepository;
     @Mock
     private UserRepository userRepository;
+    @Mock
+    private UserService userService;
     @Mock
     private BookingMapper bookingMapper;
     @InjectMocks
@@ -321,6 +325,8 @@ class BookingServiceImplTest {
     @Test
     void getAllBookingsByState_withNotOwnerAndPASTState_thenInvokeFindAllByBookerIdAndEndBeforeOrderByStartDesc() {
         String state = "PAST";
+        when(userService.findById(anyLong())).thenReturn(new UserDto());
+
 
         bookingService.getAllBookingsByState(userId, state, 1, 1, false);
         verify(bookingRepository, times(1))
@@ -332,6 +338,7 @@ class BookingServiceImplTest {
     @Test
     void getAllBookingsByState_withNotOwnerAndWAITINGState_thenInvokeFindAllByBookerIdAndStatusOrderByStartDescWithWaitingInParams() {
         String state = "WAITING";
+        when(userService.findById(anyLong())).thenReturn(new UserDto());
 
         bookingService.getAllBookingsByState(userId, state, 1, 1, false);
         verify(bookingRepository, times(1))
@@ -346,6 +353,7 @@ class BookingServiceImplTest {
     @Test
     void getAllBookingsByState_withNotOwnerAndREJECTEDState_thenInvokeFindAllByBookerIdAndStatusOrderByStartDescWithRejectedInParams() {
         String state = "REJECTED";
+        when(userService.findById(anyLong())).thenReturn(new UserDto());
 
         bookingService.getAllBookingsByState(userId, state, 1, 1, false);
         verify(bookingRepository, times(1))
@@ -360,6 +368,7 @@ class BookingServiceImplTest {
     @Test
     void getAllBookingsByState_withNotOwnerAndAllState_thenInvokeFindAllByBookerIdOrderByStartDesc() {
         String state = "ALL";
+        when(userService.findById(anyLong())).thenReturn(new UserDto());
 
         bookingService.getAllBookingsByState(userId, state, 1, 1, false);
         verify(bookingRepository, times(1))
@@ -373,6 +382,7 @@ class BookingServiceImplTest {
         booking.setStatus(BookingStatus.WAITING);
         booking.setItem(item);
         booking.setBooker(booker);
+        when(userService.findById(anyLong())).thenReturn(new UserDto());
         when(bookingRepository.findById(bookingId)).thenReturn(Optional.ofNullable(booking));
         when(bookingMapper.bookingToResponseDto(booking)).thenReturn(bookingResponseDto);
 
@@ -384,6 +394,7 @@ class BookingServiceImplTest {
 
     @Test
     void getBookingById_whenBookingNotFound_thenEntityNotFoundExceptionThrow() {
+        when(userService.findById(anyLong())).thenReturn(new UserDto());
         when(bookingRepository.findById(bookingId)).thenReturn(Optional.empty());
         assertThrows(EntityNotFoundException.class,
                 () -> bookingService.getBookingById(userId, bookingId));
@@ -396,6 +407,7 @@ class BookingServiceImplTest {
         booking.setStatus(BookingStatus.WAITING);
         booking.setItem(item);
         booking.setBooker(user);
+        when(userService.findById(anyLong())).thenReturn(new UserDto());
         when(bookingRepository.findById(bookingId)).thenReturn(Optional.ofNullable(booking));
         when(bookingMapper.bookingToResponseDto(booking)).thenReturn(bookingResponseDto);
 
@@ -411,6 +423,7 @@ class BookingServiceImplTest {
         booking.setStatus(BookingStatus.WAITING);
         booking.setItem(item);
         booking.setBooker(booker);
+        when(userService.findById(anyLong())).thenReturn(new UserDto());
         when(bookingRepository.findById(bookingId)).thenReturn(Optional.ofNullable(booking));
         when(bookingMapper.bookingToResponseDto(booking)).thenReturn(bookingResponseDto);
 
@@ -428,6 +441,7 @@ class BookingServiceImplTest {
         booking.setStatus(BookingStatus.WAITING);
         booking.setItem(item);
         booking.setBooker(booker);
+        when(userService.findById(anyLong())).thenReturn(new UserDto());
         when(bookingRepository.findById(bookingId)).thenReturn(Optional.ofNullable(booking));
 
         assertThrows(EntityNotFoundException.class,

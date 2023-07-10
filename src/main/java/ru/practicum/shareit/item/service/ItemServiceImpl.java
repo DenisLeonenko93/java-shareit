@@ -61,6 +61,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDto update(Long userId, Long itemId, ItemDto itemDto) {
+        userService.findById(userId);
         Item item = getOrThrow(itemId);
 
         checkItemOwner(userId, item);
@@ -71,6 +72,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemBooked getByItemId(Long userId, Long itemId) {
+        userService.findById(userId);
         Item item = getOrThrow(itemId);
         ItemBooked itemBooked = itemMapper.itemToItemBooked(item);
         if (item.getOwner().getId().equals(userId)) {
@@ -91,6 +93,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<ItemBooked> getAllItemsDyUserId(Long userId, Integer from, Integer size) {
+        userService.findById(userId);
         Pageable page = PageRequest.of(from > 0 ? from / size : 0, size);
 
         List<ItemBooked> items = itemRepository.findAllByOwner_Id(userId, page)
@@ -118,6 +121,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public void delete(Long userId, Long itemId) {
+        userService.findById(userId);
         Item item = getOrThrow(itemId);
         checkItemOwner(userId, item);
         itemRepository.deleteById(itemId);
@@ -129,6 +133,7 @@ public class ItemServiceImpl implements ItemService {
             return Collections.emptyList();
         }
 
+        userService.findById(userId);
         Pageable page = PageRequest.of(from > 0 ? from / size : 0, size);
 
         List<Item> items = itemRepository.search(text, page);

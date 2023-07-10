@@ -1,9 +1,12 @@
 package ru.practicum.shareit.user.service;
 
+import com.sun.jdi.request.DuplicateRequestException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.exception.CreateDuplicateEntityException;
 import ru.practicum.shareit.exception.EntityNotFoundException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.mapper.UserMapper;
@@ -41,8 +44,13 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Override
     public UserDto create(UserDto userDto) {
-        User user = userMapper.userFromDto(userDto);
-        return userMapper.userToDto(userRepository.save(user));
+        try {
+            User user = userMapper.userFromDto(userDto);
+            User sacedUser = userRepository.save(user);
+            return userMapper.userToDto(sacedUser);
+        } catch (DataIntegrityViolationException e) {
+            throw new CreateDuplicateEntityException("Пользователь с email уже существует.");
+        }
     }
 
 

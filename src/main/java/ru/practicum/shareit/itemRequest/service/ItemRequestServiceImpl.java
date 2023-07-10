@@ -37,6 +37,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
 
     @Override
     public List<ItemRequestDto> getAllRequestByUser(Long userId) {
+        userService.findById(userId);
         List<ItemRequestDto> requests = itemRequestRepository.findByRequestorIdOrderByCreatedAsc(userId).stream()
                 .map(itemRequestMapper::toDto)
                 .collect(Collectors.toList());
@@ -46,6 +47,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
 
     @Override
     public ItemRequestDto getRequestById(Long userId, Long requestId) {
+        userService.findById(userId);
         ItemRequest request = itemRequestRepository.findById(requestId)
                 .orElseThrow(() -> new EntityNotFoundException(ItemRequest.class, String.format("ID: %s", requestId)));
 
@@ -55,6 +57,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     @Override
     @LogExecution(withArgs = true)
     public List<ItemRequestDto> getAllRequests(Long userId, Integer from, Integer size) {
+        userService.findById(userId);
         Pageable page = PageRequest.of(from > 0 ? from / size : 0, size);
 
         return itemRequestRepository.findByRequestorIdNotOrderByCreatedAsc(userId, page)

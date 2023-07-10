@@ -5,6 +5,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import ru.practicum.shareit.exception.CreateDuplicateEntityException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 
@@ -90,6 +91,16 @@ class UserServiceImplIT {
         assertNotNull(user.getId());
         assertEquals(user.getName(), userDto.getName());
         assertEquals(user.getEmail(), userDto.getEmail());
+    }
+
+    @Test
+    void create_withDuplicateUser() {
+        UserDto userDtoDuplicate = UserDto.builder()
+                .name("Duplicate")
+                .email("user@mail.ru").build();
+
+        assertThrows(CreateDuplicateEntityException.class,
+                () -> service.create(userDtoDuplicate));
     }
 
     @Test

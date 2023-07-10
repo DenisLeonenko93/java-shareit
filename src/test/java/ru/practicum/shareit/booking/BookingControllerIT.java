@@ -12,6 +12,7 @@ import ru.practicum.shareit.booking.dto.BookingRequestDto;
 import ru.practicum.shareit.booking.dto.BookingResponseDto;
 import ru.practicum.shareit.booking.service.BookingService;
 import ru.practicum.shareit.exception.EntityNotFoundException;
+import ru.practicum.shareit.exception.UnsupportedStatusException;
 import ru.practicum.shareit.exception.ValidationException;
 
 import java.time.LocalDateTime;
@@ -129,6 +130,32 @@ class BookingControllerIT {
 
     @SneakyThrows
     @Test
+    void bookingConfirmation_whenNotApproveParam_thenReturnStatusBadRequest() {
+        Long bookingId = 0L;
+        Boolean approved = true;
+        when(bookingService.bookingConfirmation(userId, bookingId, approved))
+                .thenThrow(EntityNotFoundException.class);
+
+        mockMvc.perform(patch("/bookings/{bookingId}", bookingId)
+                        .header("X-Sharer-User-Id", userId.toString()))
+                .andExpect(status().isBadRequest());
+    }
+
+    @SneakyThrows
+    @Test
+    void bookingConfirmation_whenNotUserHead_thenReturnStatusBadRequest() {
+        Long bookingId = 0L;
+        Boolean approved = true;
+        when(bookingService.bookingConfirmation(userId, bookingId, approved))
+                .thenThrow(EntityNotFoundException.class);
+
+        mockMvc.perform(patch("/bookings/{bookingId}", bookingId)
+                        .param("approved", "true"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @SneakyThrows
+    @Test
     void getBookingById_whenInvoke_thenReturnStatusOK() {
         Long bookingId = 0L;
         BookingResponseDto responseDto = BookingResponseDto.builder().build();
@@ -198,6 +225,24 @@ class BookingControllerIT {
         String state = "ALL";
         Integer from = -1;
         Integer size = -1;
+
+        mockMvc.perform(get("/bookings")
+                        .header("X-Sharer-User-Id", userId.toString())
+                        .param("state", state)
+                        .param("from", from.toString())
+                        .param("size", size.toString()))
+                .andExpect(status().isBadRequest());
+    }
+
+    @SneakyThrows
+    @Test
+    void getAllBookings_whenNotValidState_thenReturnStatusBadRequest() {
+        String state = "NotValid";
+        Integer from = 1;
+        Integer size = 1;
+        when(bookingService.getAllBookingsByState(any(), any(), any(), any(), any()))
+                .thenThrow(UnsupportedStatusException.class);
+
         mockMvc.perform(get("/bookings")
                         .header("X-Sharer-User-Id", userId.toString())
                         .param("state", state)
