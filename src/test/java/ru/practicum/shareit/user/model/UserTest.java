@@ -13,7 +13,7 @@ class UserTest {
         User user = null;
         testingUser = new User();
 
-        assertFalse(testingUser.equals(user));
+        assertNotEquals(testingUser, user);
     }
 
     @Test
@@ -21,7 +21,7 @@ class UserTest {
         testingUser = new User();
         Object user = new Object();
 
-        assertFalse(testingUser.equals(user));
+        assertNotEquals(testingUser, user);
     }
 
     @Test
@@ -29,7 +29,7 @@ class UserTest {
         testingUser = User.builder().id(1L).build();
         User user = User.builder().id(1L).name("Test").build();
 
-        assertTrue(testingUser.equals(user));
+        assertEquals(testingUser, user);
     }
 
     @Test
@@ -37,14 +37,13 @@ class UserTest {
         testingUser = User.builder().id(1L).build();
         User user = User.builder().id(2L).name("Test").build();
 
-        assertFalse(testingUser.equals(user));
+        assertNotEquals(testingUser, user);
     }
 
     @Test
     void testHashCode_whenInvoke_thenReturnNotNull() {
         testingUser = User.builder().id(1L).build();
         int hash = testingUser.hashCode();
-
         assertNotNull(hash);
     }
 }
