@@ -51,6 +51,8 @@ class ItemRequestControllerIT {
                 .getResponse()
                 .getContentAsString();
 
+        System.out.println("EXAMPLE " + result);
+
         assertEquals(objectMapper.writeValueAsString(itemRequestDto), result);
     }
 

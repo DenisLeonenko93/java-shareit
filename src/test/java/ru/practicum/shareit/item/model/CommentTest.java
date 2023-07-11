@@ -2,7 +2,7 @@ package ru.practicum.shareit.item.model;
 
 import org.junit.jupiter.api.Test;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -29,7 +29,7 @@ class CommentTest {
     @Test
     void testEquals_withEqualUser_returnTrue() {
         testingComment = Comment.builder().id(1L).build();
-        Comment comment = Comment.builder().id(1L).created(Instant.now()).build();
+        Comment comment = Comment.builder().id(1L).created(LocalDateTime.now()).build();
 
         assertTrue(testingComment.equals(comment));
     }

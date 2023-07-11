@@ -8,7 +8,7 @@ import ru.practicum.shareit.itemRequest.dto.ItemRequestDto;
 import ru.practicum.shareit.itemRequest.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -29,14 +29,14 @@ class ItemRequestMapperTest {
         ItemRequestDto itemRequestDto = ItemRequestDto.builder()
                 .id(0L)
                 .description("description")
-                .created(Instant.MIN)
+                .created(LocalDateTime.MIN)
                 .items(List.of(itemDto)).build();
 
         ItemRequest actualRequest = mapper.fromDto(itemRequestDto);
 
         assertEquals(0L, actualRequest.getId());
         assertEquals("description", actualRequest.getDescription());
-        assertEquals(Instant.MIN, actualRequest.getCreated());
+        assertEquals(LocalDateTime.MIN, actualRequest.getCreated());
         assertFalse(actualRequest.getItems().isEmpty());
 
         Item actualItem = actualRequest.getItems().get(0);
@@ -62,7 +62,7 @@ class ItemRequestMapperTest {
         ItemRequest itemRequest = ItemRequest.builder()
                 .id(0L)
                 .description("desc")
-                .created(Instant.MIN)
+                .created(LocalDateTime.MIN)
                 .items(List.of(item))
                 .build();
 
@@ -70,7 +70,7 @@ class ItemRequestMapperTest {
 
         assertEquals(0L, actualDto.getId());
         assertEquals("desc", actualDto.getDescription());
-        assertEquals(Instant.MIN, actualDto.getCreated());
+        assertEquals(LocalDateTime.MIN, actualDto.getCreated());
         assertFalse(actualDto.getItems().isEmpty());
 
         ItemDto actualItemDto = actualDto.getItems().get(0);

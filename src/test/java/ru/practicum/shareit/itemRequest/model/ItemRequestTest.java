@@ -2,7 +2,7 @@ package ru.practicum.shareit.itemRequest.model;
 
 import org.junit.jupiter.api.Test;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -29,7 +29,7 @@ class ItemRequestTest {
     @Test
     void testEquals_withEqualUser_returnTrue() {
         testingItemRequest = ItemRequest.builder().id(1L).build();
-        ItemRequest itemRequest = ItemRequest.builder().id(1L).created(Instant.now()).build();
+        ItemRequest itemRequest = ItemRequest.builder().id(1L).created(LocalDateTime.now()).build();
 
         assertTrue(testingItemRequest.equals(itemRequest));
     }

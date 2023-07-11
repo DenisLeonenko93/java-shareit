@@ -20,7 +20,7 @@ import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -55,7 +55,7 @@ class ItemRequestServiceImplTest {
         itemRequestDto = ItemRequestDto.builder()
                 .id(1L)
                 .description("desc")
-                .created(Instant.MIN).build();
+                .created(LocalDateTime.MIN).build();
         itemRequest = ItemRequest.builder().build();
     }
 
@@ -65,11 +65,11 @@ class ItemRequestServiceImplTest {
         UserDto userDto = UserDto.builder().build();
         User user = User.builder().build();
         ItemRequest itemRequest = ItemRequest.builder()
-                .created(Instant.MIN).build();
+                .created(LocalDateTime.MIN).build();
         ItemRequest expectedItemRequest = ItemRequest.builder()
                 .id(1L)
                 .requestor(user)
-                .created(Instant.MIN).build();
+                .created(LocalDateTime.MIN).build();
 
         when(userService.findById(userId)).thenReturn(userDto);
         when(userMapper.userFromDto(userDto)).thenReturn(user);
@@ -81,7 +81,7 @@ class ItemRequestServiceImplTest {
 
         assertEquals(1L, actualItemRequestDto.getId());
         assertEquals("desc", actualItemRequestDto.getDescription());
-        assertEquals(Instant.MIN, actualItemRequestDto.getCreated());
+        assertEquals(LocalDateTime.MIN, actualItemRequestDto.getCreated());
         assertNull(actualItemRequestDto.getItems());
 
         verify(itemRequestRepository).save(argumentCaptorItemRequest.capture());

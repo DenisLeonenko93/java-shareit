@@ -102,6 +102,8 @@ class UserControllerIT {
                 .getResponse()
                 .getContentAsString();
 
+        System.out.println("EXAMPLE " + objectMapper.writeValueAsString(userDto));
+
         assertEquals(objectMapper.writeValueAsString(userDto), result);
         verify(userService).create(userDto);
     }
