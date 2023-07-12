@@ -1,7 +1,5 @@
 package ru.practicum.shareit.user.model;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -9,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class UserTest {
 
     private User testingUser;
+
     @Test
     void testEquals_withNull_returnFalse() {
         User user = null;
