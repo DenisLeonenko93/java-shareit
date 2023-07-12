@@ -6,7 +6,7 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 
 @Getter
@@ -31,8 +31,9 @@ public class ItemRequest {
     private User requestor;
 
     @CreationTimestamp
-    private LocalDateTime created;
+    private Instant created;
 
+    //TODO разобраться со связями, долго работает.
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     @JoinColumn(name = "request_id")
     @ToString.Exclude

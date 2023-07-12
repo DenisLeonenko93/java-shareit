@@ -26,13 +26,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(BookingController.class)
 class BookingControllerIT {
-    private static Long userId;
     @Autowired
     private ObjectMapper objectMapper;
     @Autowired
     private MockMvc mockMvc;
     @MockBean
     private BookingService bookingService;
+    private static Long userId;
 
     @BeforeAll
     static void beforeAll() {

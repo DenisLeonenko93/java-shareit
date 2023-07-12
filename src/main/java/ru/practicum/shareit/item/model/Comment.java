@@ -5,7 +5,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Getter
 @Setter
@@ -34,7 +34,7 @@ public class Comment {
     private User author;
 
     @CreationTimestamp
-    private LocalDateTime created;
+    private Instant created;
 
     @Override
     public boolean equals(Object o) {

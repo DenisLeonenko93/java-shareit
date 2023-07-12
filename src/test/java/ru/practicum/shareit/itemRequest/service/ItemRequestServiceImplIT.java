@@ -21,8 +21,7 @@ import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 @Transactional
 @SpringBootTest(
@@ -34,7 +33,6 @@ class ItemRequestServiceImplIT {
     private final EntityManager em;
     private final ItemRequestServiceImpl itemRequestService;
     private final UserService userService;
-
     private Long userId;
     private ItemRequestDto itemRequestDto;
 
