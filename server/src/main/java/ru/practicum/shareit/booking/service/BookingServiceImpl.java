@@ -82,12 +82,7 @@ public class BookingServiceImpl implements BookingService {
                                                           Boolean hasOwner) {
         userService.findById(userId);
         List<Booking> bookings;
-        BookingState state;
-        try {
-            state = BookingState.valueOf(bookingState);
-        } catch (Exception e) {
-            throw new UnsupportedStatusException(bookingState);
-        }
+        BookingState state = BookingState.valueOf(bookingState);
 
         Pageable page = PageRequest.of(from > 0 ? from / size : 0, size);
 

@@ -7,7 +7,7 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import ru.practicum.shareit.exception.*;
+import ru.practicum.shareit.exception.UnsupportedStatusException;
 
 import javax.validation.ConstraintViolationException;
 
@@ -15,39 +15,17 @@ import static org.springframework.http.HttpStatus.*;
 
 @Slf4j
 @RestControllerAdvice
+
 public class ErrorHandler {
 
-    @ExceptionHandler(EntityNotFoundException.class)
-    @ResponseStatus(NOT_FOUND)
-    public ErrorInfo handleNotFoundEntity(EntityNotFoundException e) {
-        log.warn(e.getMessage());
-        return new ErrorInfo(EntityNotFoundException.class,
-                e.getMessage());
-    }
-
-    @ExceptionHandler(CreateDuplicateEntityException.class)
-    @ResponseStatus(CONFLICT)
-    public ErrorInfo handleDuplicateEntity(CreateDuplicateEntityException e) {
-        log.warn(e.getMessage());
-        return new ErrorInfo(CreateDuplicateEntityException.class,
-                e.getMessage());
-    }
-
-    @ExceptionHandler(DataAccessException.class)
-    @ResponseStatus(FORBIDDEN)
-    public ErrorInfo handleUnsupportedStatusException(DataAccessException e) {
-        log.warn(e.getMessage());
-        return new ErrorInfo(DataAccessException.class,
-                e.getMessage());
-    }
-
-    @ExceptionHandler(ValidationException.class)
+    @ExceptionHandler(UnsupportedStatusException.class)
     @ResponseStatus(BAD_REQUEST)
-    public ErrorInfo handleUnsupportedStatusException(ValidationException e) {
+    public ErrorInfo handleUnsupportedStatusException(UnsupportedStatusException e) {
         log.warn(e.getMessage());
-        return new ErrorInfo(ValidationException.class,
+        return new ErrorInfo(UnsupportedStatusException.class,
                 e.getMessage());
     }
+
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(BAD_REQUEST)

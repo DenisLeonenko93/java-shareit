@@ -10,8 +10,6 @@ import ru.practicum.shareit.booking.dto.BookingResponseDto;
 import ru.practicum.shareit.booking.service.BookingService;
 import ru.practicum.shareit.util.LogExecution;
 
-import javax.validation.Valid;
-import javax.validation.constraints.Min;
 import java.util.List;
 
 @RestController
@@ -25,7 +23,7 @@ public class BookingController {
     @PostMapping
     @LogExecution
     public ResponseEntity<BookingResponseDto> create(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                                     @RequestBody @Valid BookingRequestDto bookingRequestDto) {
+                                                     @RequestBody BookingRequestDto bookingRequestDto) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(bookingService.create(userId, bookingRequestDto));
     }
@@ -45,12 +43,13 @@ public class BookingController {
         return ResponseEntity.ok(bookingService.getBookingById(userId, bookingId));
     }
 
+    //TODO убрать проверки у requestParam
     @GetMapping
     @LogExecution(withArgs = true)
     public ResponseEntity<List<BookingResponseDto>> getAllBookings(@RequestHeader("X-Sharer-User-Id") Long userId,
                                                                    @RequestParam(defaultValue = "ALL", required = false) String state,
-                                                                   @RequestParam(required = false, defaultValue = "0") @Min(0) Integer from,
-                                                                   @RequestParam(required = false, defaultValue = "10") @Min(1) Integer size) {
+                                                                   @RequestParam(required = false, defaultValue = "0") Integer from,
+                                                                   @RequestParam(required = false, defaultValue = "10") Integer size) {
         return ResponseEntity.ok(bookingService.getAllBookingsByState(userId, state, from, size, false));
     }
 
@@ -58,8 +57,8 @@ public class BookingController {
     @LogExecution(withArgs = true)
     public ResponseEntity<List<BookingResponseDto>> getAllBookingsByItemOwner(@RequestHeader("X-Sharer-User-Id") Long userId,
                                                                               @RequestParam(defaultValue = "ALL", required = false) String state,
-                                                                              @RequestParam(required = false, defaultValue = "0") @Min(0) Integer from,
-                                                                              @RequestParam(required = false, defaultValue = "10") @Min(1) Integer size) {
+                                                                              @RequestParam(required = false, defaultValue = "0") Integer from,
+                                                                              @RequestParam(required = false, defaultValue = "10") Integer size) {
         return ResponseEntity.ok(bookingService.getAllBookingsByState(userId, state, from, size, true));
     }
 }
