@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 @Builder
 public class BookingRequestDto {
     private Long id;
+    @NotNull(message = "Необходимо указать бронируемую вещь")
     @Positive(message = "Указано отрицательное значение Id")
     private Long itemId;
 

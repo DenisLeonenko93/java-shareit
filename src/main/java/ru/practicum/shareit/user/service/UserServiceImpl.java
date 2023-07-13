@@ -1,13 +1,18 @@
 package ru.practicum.shareit.user.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.exception.CreateDuplicateEntityException;
 import ru.practicum.shareit.exception.EntityNotFoundException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -19,8 +24,10 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
 
     @Override
-    public List<UserDto> getAll() {
-        return userRepository.findAll()
+    public List<UserDto> getAll(Integer from, Integer size) {
+        Pageable page = PageRequest.of(from > 0 ? from / size : 0, size);
+
+        return userRepository.findAll(page)
                 .stream()
                 .map(userMapper::userToDto)
                 .collect(Collectors.toList());
@@ -33,10 +40,16 @@ public class UserServiceImpl implements UserService {
         return userMapper.userToDto(user);
     }
 
+    @Transactional
     @Override
     public UserDto create(UserDto userDto) {
-        User user = userMapper.userFromDto(userDto);
-        return userMapper.userToDto(userRepository.save(user));
+        try {
+            User user = userMapper.userFromDto(userDto);
+            User sacedUser = userRepository.save(user);
+            return userMapper.userToDto(sacedUser);
+        } catch (DataIntegrityViolationException e) {
+            throw new CreateDuplicateEntityException("Пользователь с email уже существует.");
+        }
     }
 
 
@@ -45,6 +58,7 @@ public class UserServiceImpl implements UserService {
         userRepository.deleteById(userId);
     }
 
+    @Transactional
     @Override
     public UserDto update(Long userId, UserDto userDto) {
         User user = userRepository.findById(userId)

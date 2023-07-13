@@ -5,10 +5,8 @@ import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
 
-/**
- * TODO Sprint add-controllers.
- */
 @Data
 @Builder
 public class ItemDto {
@@ -19,4 +17,6 @@ public class ItemDto {
     private String description;
     @NotNull(message = "Поле available должно быть заполнено.")
     private Boolean available;
+    @Positive(message = "Указано отрицательное значение Id")
+    private Long requestId;
 }

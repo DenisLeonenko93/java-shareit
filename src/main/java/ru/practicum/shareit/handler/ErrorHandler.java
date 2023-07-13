@@ -1,7 +1,6 @@
 package ru.practicum.shareit.handler;
 
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
@@ -9,6 +8,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.practicum.shareit.exception.*;
+
+import javax.validation.ConstraintViolationException;
 
 import static org.springframework.http.HttpStatus.*;
 
@@ -81,9 +82,8 @@ public class ErrorHandler {
                 e.getMessage());
     }
 
-    //TODO разобраться с описанием ошибки
     @ExceptionHandler(ConstraintViolationException.class)
-    @ResponseStatus(CONFLICT)
+    @ResponseStatus(BAD_REQUEST)
     public ErrorInfo handleHibernateViolationException(ConstraintViolationException e) {
         log.warn(e.getLocalizedMessage());
         return new ErrorInfo(ConstraintViolationException.class,

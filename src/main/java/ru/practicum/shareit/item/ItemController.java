@@ -3,6 +3,7 @@ package ru.practicum.shareit.item;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemBooked;
@@ -11,14 +12,13 @@ import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.util.LogExecution;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import java.util.List;
 
-/**
- * TODO Sprint add-controllers.
- */
 @RestController
 @RequestMapping("/items")
 @RequiredArgsConstructor
+@Validated
 public class ItemController {
 
     private final ItemService itemService;
@@ -48,8 +48,10 @@ public class ItemController {
 
     @GetMapping
     @LogExecution
-    public ResponseEntity<List<ItemBooked>> getAllItemsByUserId(@RequestHeader("X-Sharer-User-Id") Long userId) {
-        return ResponseEntity.ok(itemService.getAllItemsDyUserId(userId));
+    public ResponseEntity<List<ItemBooked>> getAllItemsByUserId(@RequestHeader("X-Sharer-User-Id") Long userId,
+                                                                @RequestParam(required = false, defaultValue = "0") @Min(0) Integer from,
+                                                                @RequestParam(required = false, defaultValue = "10") @Min(1) Integer size) {
+        return ResponseEntity.ok(itemService.getAllItemsDyUserId(userId, from, size));
     }
 
     @DeleteMapping("/{itemId}")
@@ -63,8 +65,10 @@ public class ItemController {
     @GetMapping("/search")
     @LogExecution
     public ResponseEntity<List<ItemDto>> search(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                                @RequestParam("text") String text) {
-        return ResponseEntity.ok(itemService.search(userId, text));
+                                                @RequestParam("text") String text,
+                                                @RequestParam(required = false, defaultValue = "0") @Min(0) Integer from,
+                                                @RequestParam(required = false, defaultValue = "10") @Min(1) Integer size) {
+        return ResponseEntity.ok(itemService.search(userId, text, from, size));
     }
 
     @PostMapping("/{itemId}/comment")
@@ -72,6 +76,6 @@ public class ItemController {
     public ResponseEntity<CommentDto> createComment(@RequestHeader("X-Sharer-User-Id") Long userId,
                                                     @PathVariable("itemId") Long itemId,
                                                     @RequestBody @Valid CommentDto commentDto) {
-        return ResponseEntity.ok(itemService.createComment(userId, itemId, commentDto));
+        return ResponseEntity.ok().body(itemService.createComment(userId, itemId, commentDto));
     }
 }
