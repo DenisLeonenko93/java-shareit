@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.ResultActions;
 import ru.practicum.shareit.exception.DataAccessException;
 import ru.practicum.shareit.exception.EntityNotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
@@ -64,52 +63,19 @@ class ItemControllerIT {
 
     @SneakyThrows
     @Test
-    void create_whenBodyNotValid_thenStatusBadRequest() {
+    void create_whenUserNotFound_thenStatusNotFound() {
+        Long wrongUserId = 99999L;
         ItemDto itemDto = ItemDto.builder()
                 .description("desc")
                 .available(true).build();
+        when(itemService.create(wrongUserId, itemDto))
+                .thenThrow(EntityNotFoundException.class);
 
         mockMvc.perform(post("/items")
-                        .header("X-Sharer-User-Id", userId.toString())
+                        .header("X-Sharer-User-Id", wrongUserId.toString())
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsString(itemDto)))
-                .andExpect(status().isBadRequest());
-
-        verify(itemService, never()).create(userId, itemDto);
-    }
-
-    @SneakyThrows
-    @Test
-    void create_whenNotHeadUserId_thenStatusBadRequest() {
-        ItemDto itemDto = ItemDto.builder()
-                .description("desc")
-                .available(true).build();
-
-        mockMvc.perform(post("/items")
-                        .contentType("application/json")
-                        .content(objectMapper.writeValueAsString(itemDto)))
-                .andExpect(status().isBadRequest());
-
-        verify(itemService, never()).create(userId, itemDto);
-    }
-
-    @SneakyThrows
-    @Test
-    void create_whenUserNotFound_thenthenStatusNotFound() {
-        Long wrongUserId = 100L;
-        ItemDto itemDto = ItemDto.builder()
-                .description("desc")
-                .available(true).build();
-
-        ResultActions resultActions = mockMvc.perform(post("/items")
-                .header("X-Sharer-User-Id", wrongUserId.toString())
-                .contentType("application/json")
-                .content(objectMapper.writeValueAsString(itemDto)));
-
-        resultActions.andExpect(status().isBadRequest());
-        String body = resultActions.andReturn().getResponse().getContentAsString();
-
-        verify(itemService, never()).create(wrongUserId, itemDto);
+                .andExpect(status().isNotFound());
     }
 
     @SneakyThrows
@@ -240,21 +206,6 @@ class ItemControllerIT {
 
     @SneakyThrows
     @Test
-    void getAllItemsByUserId_whenParamsNotValid_thenStatusBadRequest() {
-        Integer from = -1;
-        Integer size = -1;
-
-        mockMvc.perform(get("/items")
-                        .header("X-Sharer-User-Id", userId.toString())
-                        .param("from", from.toString())
-                        .param("size", size.toString()))
-                .andExpect(status().isBadRequest());
-
-        verify(itemService, never()).getAllItemsDyUserId(userId, from, size);
-    }
-
-    @SneakyThrows
-    @Test
     void delete_whenInvoke_thenStatusNoContent() {
         Long itemId = 0L;
 
@@ -285,23 +236,6 @@ class ItemControllerIT {
                 .getContentAsString();
 
         assertEquals(objectMapper.writeValueAsString(itemDtoList), result);
-    }
-
-    @SneakyThrows
-    @Test
-    void search_whenParamsNotValid_thenStatusBadRequest() {
-        String text = "text";
-        Integer from = -1;
-        Integer size = -1;
-
-        mockMvc.perform(get("/items/search")
-                        .header("X-Sharer-User-Id", userId.toString())
-                        .param("text", text)
-                        .param("from", from.toString())
-                        .param("size", size.toString()))
-                .andExpect(status().isBadRequest());
-
-        verify(itemService, never()).getAllItemsDyUserId(userId, from, size);
     }
 
     @SneakyThrows

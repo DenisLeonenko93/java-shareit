@@ -12,7 +12,6 @@ import ru.practicum.shareit.booking.dto.BookingRequestDto;
 import ru.practicum.shareit.booking.dto.BookingResponseDto;
 import ru.practicum.shareit.booking.service.BookingService;
 import ru.practicum.shareit.exception.EntityNotFoundException;
-import ru.practicum.shareit.exception.UnsupportedStatusException;
 import ru.practicum.shareit.exception.ValidationException;
 
 import java.time.LocalDateTime;
@@ -20,7 +19,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -78,23 +77,6 @@ class BookingControllerIT {
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsString(bookingRequestDto)))
                 .andExpect(status().isNotFound());
-    }
-
-    @SneakyThrows
-    @Test
-    void create_whenNotValidBody_thenReturnStatusBadRequest() {
-        BookingRequestDto bookingRequestDto = BookingRequestDto.builder()
-                .itemId(1L)
-                .start(LocalDateTime.now().minusHours(1L))
-                .end(LocalDateTime.now().plusHours(2L)).build();
-
-        mockMvc.perform(post("/bookings")
-                        .header("X-Sharer-User-Id", userId.toString())
-                        .contentType("application/json")
-                        .content(objectMapper.writeValueAsString(bookingRequestDto)))
-                .andExpect(status().isBadRequest());
-
-        verify(bookingService, never()).create(userId, bookingRequestDto);
     }
 
     @SneakyThrows
@@ -221,38 +203,6 @@ class BookingControllerIT {
 
     @SneakyThrows
     @Test
-    void getAllBookings_whenNotValidParams_thenReturnStatusBadRequest() {
-        String state = "ALL";
-        Integer from = -1;
-        Integer size = -1;
-
-        mockMvc.perform(get("/bookings")
-                        .header("X-Sharer-User-Id", userId.toString())
-                        .param("state", state)
-                        .param("from", from.toString())
-                        .param("size", size.toString()))
-                .andExpect(status().isBadRequest());
-    }
-
-    @SneakyThrows
-    @Test
-    void getAllBookings_whenNotValidState_thenReturnStatusBadRequest() {
-        String state = "NotValid";
-        Integer from = 1;
-        Integer size = 1;
-        when(bookingService.getAllBookingsByState(any(), any(), any(), any(), any()))
-                .thenThrow(UnsupportedStatusException.class);
-
-        mockMvc.perform(get("/bookings")
-                        .header("X-Sharer-User-Id", userId.toString())
-                        .param("state", state)
-                        .param("from", from.toString())
-                        .param("size", size.toString()))
-                .andExpect(status().isBadRequest());
-    }
-
-    @SneakyThrows
-    @Test
     void getAllBookingsByItemOwner_whenInvoke_thenReturnStatusOK() {
         String state = "ALL";
         Integer from = 1;
@@ -272,19 +222,5 @@ class BookingControllerIT {
                 .getContentAsString();
 
         assertEquals(objectMapper.writeValueAsString(responseDtoList), result);
-    }
-
-    @SneakyThrows
-    @Test
-    void getAllBookingsByItemOwner_whenNotValidParams_thenReturnStatusBadRequest() {
-        String state = "ALL";
-        Integer from = -1;
-        Integer size = -1;
-        mockMvc.perform(get("/bookings/owner")
-                        .header("X-Sharer-User-Id", userId.toString())
-                        .param("state", state)
-                        .param("from", from.toString())
-                        .param("size", size.toString()))
-                .andExpect(status().isBadRequest());
     }
 }

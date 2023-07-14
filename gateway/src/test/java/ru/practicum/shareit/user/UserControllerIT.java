@@ -9,9 +9,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -90,20 +88,10 @@ class UserControllerIT {
         verify(userClient).getUsers(defaultFrom, defaultSize);
     }
 
-    @SneakyThrows
-    @Test
-    void getUsers_whenUserNotFound_thenStatusNotFound() {
-        when(userClient.getUser(any()))
-                .thenReturn(ResponseEntity.notFound().build());
-        mockMvc.perform(get("/users/{userId}", userId))
-                .andExpect(status().isNotFound());
-
-        verify(userClient).getUser(userId);
-    }
 
     @SneakyThrows
     @Test
-    void getUser_whenInvoke_thenStatusOK() {
+    void getUser_whenInvoke_thenStatusOk() {
         mockMvc.perform(get("/users/{userId}", userId))
                 .andExpect(status().isOk());
 
@@ -115,6 +103,7 @@ class UserControllerIT {
     void getUser_whenUserNotFound_thenStatusNotFound() {
         when(userClient.getUser(any()))
                 .thenReturn(ResponseEntity.notFound().build());
+
         mockMvc.perform(get("/users/{userId}", userId))
                 .andExpect(status().isNotFound());
 
@@ -186,7 +175,7 @@ class UserControllerIT {
 
     @SneakyThrows
     @Test
-    void update_whenInvoke_thenStatusOK() {
+    void update_whenInvoke_thenStatus2xx() {
         userDto = UserDto.builder()
                 .name("Name")
                 .email("user@mail.ru").build();
@@ -218,7 +207,7 @@ class UserControllerIT {
 
     @SneakyThrows
     @Test
-    void update_whenEmptyBody_thenStatusNotFound() {
+    void update_whenEmptyBody_thenStatusBadRequest() {
         mockMvc.perform(patch("/users/{userId}", userId)
                         .contentType("application/json"))
                 .andExpect(status().isBadRequest());

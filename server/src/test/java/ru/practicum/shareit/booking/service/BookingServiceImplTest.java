@@ -15,7 +15,6 @@ import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.exception.EntityNotFoundException;
-import ru.practicum.shareit.exception.UnsupportedStatusException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
@@ -91,16 +90,6 @@ class BookingServiceImplTest {
         assertNotNull(savedBooking.getBooker());
         assertNotNull(savedBooking.getItem());
         assertEquals(BookingStatus.WAITING, savedBooking.getStatus());
-    }
-
-    @Test
-    void create_whenStartAfterEnd_thenValidationExceptionThrow() {
-        bookingRequestDto.setStart(LocalDateTime.MAX);
-        bookingRequestDto.setEnd(LocalDateTime.MIN);
-
-        assertThrows(ValidationException.class,
-                () -> bookingService.create(userId, bookingRequestDto));
-        verify(bookingRepository, never()).save(any());
     }
 
     @Test
@@ -217,14 +206,6 @@ class BookingServiceImplTest {
         assertThrows(ValidationException.class,
                 () -> bookingService.bookingConfirmation(userId, bookingId, true));
         verify(bookingRepository, never()).save(any());
-    }
-
-    @Test
-    void getAllBookingsByState_withWrongState_thenUnsupportedStatusExceptionThrow() {
-        String state = "wrong";
-
-        assertThrows(UnsupportedStatusException.class,
-                () -> bookingService.getAllBookingsByState(userId, state, 1, 1, true));
     }
 
     @Test

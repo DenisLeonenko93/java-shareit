@@ -12,7 +12,7 @@ import ru.practicum.shareit.exception.ValidationException;
 
 import javax.validation.ConstraintViolationException;
 
-import static org.springframework.http.HttpStatus.*;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 @Slf4j
 @RestControllerAdvice

@@ -199,7 +199,7 @@ class ItemRequestControllerIT {
         int defaultFrom = 0;
         int defaultSize = 10;
         mockMvc.perform(get("/requests/all")
-                .header("X-Sharer-User-Id", userId.toString()))
+                        .header("X-Sharer-User-Id", userId.toString()))
                 .andExpect(status().isOk());
 
         verify(itemRequestClient).getAllRequests(userId, defaultFrom, defaultSize);
