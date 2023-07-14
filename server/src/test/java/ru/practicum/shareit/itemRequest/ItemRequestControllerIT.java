@@ -29,17 +29,18 @@ class ItemRequestControllerIT {
     @MockBean
     private ItemRequestService itemRequestService;
     private Long userId;
+    private ItemRequestDto itemRequestDto;
 
     @BeforeEach
     void beforeEach() {
         userId = 0L;
+        itemRequestDto = ItemRequestDto.builder()
+                .description("desc").build();
     }
 
     @SneakyThrows
     @Test
     void create_whenInvoke_thenInvokeItemRequestService() {
-        ItemRequestDto itemRequestDto = ItemRequestDto.builder()
-                .description("desc").build();
         when(itemRequestService.create(userId, itemRequestDto)).thenReturn(itemRequestDto);
 
         String result = mockMvc.perform(post("/requests")
@@ -56,23 +57,7 @@ class ItemRequestControllerIT {
 
     @SneakyThrows
     @Test
-    void create_whenBodyNotValid_thenStatusBadRequestBadRequest() {
-        ItemRequestDto itemRequestDto = ItemRequestDto.builder().build();
-
-        mockMvc.perform(post("/requests")
-                        .header("X-Sharer-User-Id", userId.toString())
-                        .contentType("application/json")
-                        .content(objectMapper.writeValueAsString(itemRequestDto)))
-                .andExpect(status().isBadRequest());
-
-        verify(itemRequestService, never()).create(userId, itemRequestDto);
-    }
-
-    @SneakyThrows
-    @Test
     void create_whenUserNotFound_thenStatusNotFound() {
-        ItemRequestDto itemRequestDto = ItemRequestDto.builder()
-                .description("desc").build();
         when(itemRequestService.create(userId, itemRequestDto))
                 .thenThrow(EntityNotFoundException.class);
 
@@ -86,8 +71,7 @@ class ItemRequestControllerIT {
     @SneakyThrows
     @Test
     void getAllRequestsByUser_whenInvoke_thenStatusOkAndListRequestsInBody() {
-        List<ItemRequestDto> itemRequestDtoList = List.of(ItemRequestDto.builder()
-                .description("desc").build());
+        List<ItemRequestDto> itemRequestDtoList = List.of(itemRequestDto);
         when(itemRequestService.getAllRequestByUser(userId)).thenReturn(itemRequestDtoList);
 
         String result = mockMvc.perform(get("/requests")
@@ -104,8 +88,6 @@ class ItemRequestControllerIT {
     @Test
     void getRequestById_whenInvoke_thenStatusOkAndItemRequestsInBody() {
         Long requestId = 0L;
-        ItemRequestDto itemRequestDto = ItemRequestDto.builder()
-                .description("desc").build();
         when(itemRequestService.getRequestById(userId, requestId)).thenReturn(itemRequestDto);
 
         String result = mockMvc.perform(get("/requests/{requestId}", requestId)
@@ -133,8 +115,7 @@ class ItemRequestControllerIT {
     @SneakyThrows
     @Test
     void getAllRequests_withValidParams() {
-        List<ItemRequestDto> itemRequestDtoList = List.of(ItemRequestDto.builder()
-                .description("desc").build());
+        List<ItemRequestDto> itemRequestDtoList = List.of(itemRequestDto);
         when(itemRequestService.getAllRequests(userId, 1, 1)).thenReturn(itemRequestDtoList);
 
         String result = mockMvc.perform(get("/requests/all")
@@ -147,16 +128,5 @@ class ItemRequestControllerIT {
                 .getContentAsString();
 
         assertEquals(objectMapper.writeValueAsString(itemRequestDtoList), result);
-    }
-
-    @SneakyThrows
-    @Test
-    void getAllRequests_withNotValidParams_thenReturnBadRequest() {
-        mockMvc.perform(get("/requests/all")
-                        .header("X-Sharer-User-Id", userId.toString())
-                        .param("from", "-1")
-                        .param("size", "-1"))
-                .andExpect(status().isBadRequest());
-        verify(itemRequestService, never()).getAllRequests(userId, 1, 1);
     }
 }

@@ -36,7 +36,7 @@ public class ItemRequestController {
     @GetMapping("/{requestId}")
     public ResponseEntity<Object> getRequestById(@RequestHeader("X-Sharer-User-Id") Long userId,
                                                  @PathVariable Long requestId) {
-        log.info("Get itemRequest with userId={}, requestId={}",userId, requestId);
+        log.info("Get itemRequest with userId={}, requestId={}", userId, requestId);
         return itemRequestClient.getRequestById(userId, requestId);
     }
 
