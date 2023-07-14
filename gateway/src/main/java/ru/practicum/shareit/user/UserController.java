@@ -50,6 +50,7 @@ public class UserController {
     @PatchMapping("/{userId}")
     public ResponseEntity<Object> update(@PathVariable("userId") Long userId,
                                          @RequestBody UserDto userDto) {
+        log.info("Update user {}, userId={}", userDto, userId);
         return userClient.update(userId, userDto);
     }
 }
