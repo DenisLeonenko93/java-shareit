@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.practicum.shareit.exception.UnsupportedStatusException;
+import ru.practicum.shareit.exception.ValidationException;
 
 import javax.validation.ConstraintViolationException;
 
@@ -17,6 +18,14 @@ import static org.springframework.http.HttpStatus.*;
 @RestControllerAdvice
 
 public class ErrorHandler {
+
+    @ExceptionHandler(ValidationException.class)
+    @ResponseStatus(BAD_REQUEST)
+    public ErrorInfo handleUnsupportedStatusException(ValidationException e) {
+        log.warn(e.getMessage());
+        return new ErrorInfo(ValidationException.class,
+                e.getMessage());
+    }
 
     @ExceptionHandler(UnsupportedStatusException.class)
     @ResponseStatus(BAD_REQUEST)

@@ -49,28 +49,6 @@ class UserControllerIT {
 
     @SneakyThrows
     @Test
-    void getAllUsers_withNotValidParams_thenReturnBadRequest() {
-        mockMvc.perform(get("/users")
-                        .param("from", "-1")
-                        .param("size", "-1"))
-                .andExpect(status().isBadRequest());
-
-        verify(userService, never()).getAll(1, 1);
-    }
-
-    @SneakyThrows
-    @Test
-    void getAllUsers_withoutParams() {
-        int defaultFrom = 0;
-        int defaultSize = 10;
-        mockMvc.perform(get("/users"))
-                .andExpect(status().isOk());
-
-        verify(userService).getAll(defaultFrom, defaultSize);
-    }
-
-    @SneakyThrows
-    @Test
     void getById_whenInvoke_thenInvokeUserService() {
         mockMvc.perform(get("/users/{userId}", userId))
                 .andExpect(status().isOk());
@@ -104,17 +82,6 @@ class UserControllerIT {
 
         assertEquals(objectMapper.writeValueAsString(userDto), result);
         verify(userService).create(userDto);
-    }
-
-    @SneakyThrows
-    @Test
-    void create_withNotValidParams_thenReturnBadRequest() {
-        mockMvc.perform(post("/users")
-                        .contentType("application/json")
-                        .content(objectMapper.writeValueAsString(userDto)))
-                .andExpect(status().isBadRequest());
-
-        verify(userService, never()).create(userDto);
     }
 
     @SneakyThrows

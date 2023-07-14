@@ -37,8 +37,6 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public BookingResponseDto create(Long userId, BookingRequestDto bookingRequestDto) {
-        checkBookingDate(bookingRequestDto);
-
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException(User.class, String.format("ID: %s", userId)));
         Item item = itemRepository.findById(bookingRequestDto.getItemId())
@@ -171,12 +169,4 @@ public class BookingServiceImpl implements BookingService {
         }
         return bookings;
     }
-
-    private void checkBookingDate(BookingRequestDto bookingRequestDto) {
-        if (bookingRequestDto.getEnd().isBefore(bookingRequestDto.getStart()) ||
-                bookingRequestDto.getEnd().equals(bookingRequestDto.getStart())) {
-            throw new ValidationException("Дата окончания бронирования раньше даты начала.");
-        }
-    }
-
 }
